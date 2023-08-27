@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main_navigation"
+    app:startDestination="@id/navigation_fragment"
+    >
+    <fragment
+        android:id="@+id/navigation_fragment"
+        android:name="com.inno.tatarbyhack.ui.navigation_fragment.NavigationFragment"
+        android:label="tasksFragment" >
+<!--        <action-->
+<!--            android:id="@+id/action_manage_task"-->
+<!--            app:destination="@+id/newTaskFragment"/>-->
+<!--&lt;!&ndash;            app:enterAnim="@anim/slide_in_right"&ndash;&gt;-->
+<!--&lt;!&ndash;            app:popEnterAnim="@anim/slide_in_left"&ndash;&gt;-->
+
+<!--        <action-->
+<!--            android:id="@+id/action_setting"-->
+<!--            app:destination="@+id/settingsFragment"-->
+<!--            />-->
+<!--        <action-->
+<!--            android:id="@+id/action_manage_compose_task"-->
+<!--            app:destination="@+id/newTaskComposeFragment"-->
+
+<!--            />-->
+    </fragment>
+
+
+
+
+</navigation>
