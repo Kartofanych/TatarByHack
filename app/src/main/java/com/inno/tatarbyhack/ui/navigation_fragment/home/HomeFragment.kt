@@ -1,19 +1,22 @@
 package com.inno.tatarbyhack.ui.navigation_fragment.home
 
+import android.app.Activity
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandIn
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.with
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -26,14 +29,12 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -42,16 +43,21 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -61,18 +67,25 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
 import com.inno.tatarbyhack.R
+import com.inno.tatarbyhack.ui.navigation_fragment.compose_elements.CourseItem
+import com.inno.tatarbyhack.ui.navigation_fragment.compose_elements.SearchCourseItem
+import com.inno.tatarbyhack.ui.navigation_fragment.compose_elements.SmallCourseItem
 import com.inno.tatarbyhack.ui.theme.TatarByHackTheme
-import com.inno.tatarbyhack.ui.theme.medium
+import com.inno.tatarbyhack.ui.theme.TatarTheme
 import com.inno.tatarbyhack.ui.theme.semibold
 import kotlinx.coroutines.launch
 
@@ -85,9 +98,10 @@ class HomeFragment : Fragment() {
     ): View = ComposeView(requireContext()).apply {
         setContent {
             TatarByHackTheme {
+
                 // A surface container using the 'background' color from the theme
                 CoursesPage(
-
+                    this
                 )
             }
         }
@@ -97,9 +111,8 @@ class HomeFragment : Fragment() {
 
 
 @OptIn(ExperimentalMaterialApi::class)
-@Preview
 @Composable
-fun CoursesPage() {
+fun CoursesPage(composeView: ComposeView) {
     val sheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
     )
@@ -113,12 +126,18 @@ fun CoursesPage() {
     }
 
 
+    val localContext = LocalContext.current
     val scope = rememberCoroutineScope()
+    val window = (localContext as Activity).window
+
 
     val popularCourses = listOf("Телләрне өйрәнү", "IT", "ОГЭ/ЕГЭ", "Табигый фәннәр")
-    val currPopularCourses = rememberSaveable {
-        mutableStateOf(0)
-    }
+    val currPopularCourse = rememberSaveable { mutableStateOf(0) }
+
+    val animatedBackground by animateColorAsState(targetValue = if(searchState.value) Color.White else Color(0xFF7C52C6))
+
+    WindowCompat.getInsetsController(window, composeView).isAppearanceLightStatusBars = searchState.value
+
 
     ModalBottomSheetLayout(
         sheetState = sheetState,
@@ -129,17 +148,19 @@ fun CoursesPage() {
                     scope.launch {
                         sheetState.hide()
                     }
-                    currPopularCourses.value = i
+                    currPopularCourse.value = i
                 },
                 items = popularCourses,
-                current = currPopularCourses.value
+                current = currPopularCourse.value
             )
         },
         sheetBackgroundColor = Color.Transparent
     ) {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = Color(0xFF7C52C6)
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(animatedBackground)
+                .padding(top = 24.dp)
             //MaterialTheme.colorScheme.background
         ) {
             Column(
@@ -156,71 +177,23 @@ fun CoursesPage() {
                     Toolbar(title = "Дәресләр")
                 }
 
-                SearchField {
-                    searchState.value = true
-                }
+                SearchField(searchState)
 
-                AnimatedVisibility(
-                    searchState.value,
-                    enter = fadeIn(),
-                    exit = fadeOut()
-                ) {
+                if(searchState.value) {
                     SearchItems()
                 }
 
-                AnimatedVisibility(
-                    !searchState.value,
-                    enter = fadeIn()+ slideInVertically(),
-                    exit = fadeOut()+ slideOutVertically()
-                ) {
-                    val items = (1..10).map { "Item $it" }
 
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    ) {
-                        Text(
-                            modifier = Modifier
-                                .padding(start = 20.dp),
-                            text = "Танылган",
-                            style = TextStyle(
-                                fontSize = 20.sp,
-                                fontFamily = semibold,
-                                color = Color.White
-                            )
-                        )
-                        // LazyRow to display your items horizontally
-                        LazyRow(
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(10.dp),
-                            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 10.dp),
-                            state = rememberLazyListState(),
+                if (!searchState.value) {
 
-                            ) {
-                            itemsIndexed(items) { index, item ->
-                                CourseItem()
-                            }
-                        }
-                    }
-                }
-                AnimatedVisibility(
-                    !searchState.value,
-                    enter = fadeIn()+ slideInVertically(),
-                    exit = fadeOut()+ slideOutVertically()
-                ) {
+                    TopPart()
+
                     Spacer(
                         modifier = Modifier
                             .height(0.7.dp)
                             .fillMaxWidth()
                             .background(Color(0x33FFFFFF))
                     )
-                }
-                AnimatedVisibility(
-                    !searchState.value,
-                    enter = fadeIn()+ slideInVertically(),
-                    exit = fadeOut()+ slideOutVertically()
-                ) {
                     BottomPart(
                         openSheet = {
                             showModalSheet.value = !showModalSheet.value
@@ -228,12 +201,50 @@ fun CoursesPage() {
                                 sheetState.show()
                             }
                         },
-                        popularCourses[currPopularCourses.value]
+                        popularCourses[currPopularCourse.value]
                     )
                 }
             }
         }
 
+    }
+}
+
+@Composable
+fun TopPart() {
+
+
+    val items = listOf("1", "2", "3", "4")
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+        Text(
+            modifier = Modifier
+                .padding(start = 20.dp),
+            text = "Танылган",
+            style = TextStyle(
+                fontSize = 20.sp,
+                fontFamily = semibold,
+                color = Color.White
+            )
+        )
+        // LazyRow to display your items horizontally
+        LazyRow(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            contentPadding = PaddingValues(
+                horizontal = 20.dp,
+                vertical = 10.dp
+            ),
+            state = rememberLazyListState(),
+
+            ) {
+            itemsIndexed(items) { index, item ->
+                CourseItem()
+            }
+        }
     }
 }
 
@@ -246,10 +257,12 @@ fun SearchItems() {
             .padding(horizontal = 20.dp),
         contentPadding = PaddingValues(vertical = 10.dp),
         state = rememberLazyListState(),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
 
-        ) {
+
+    ) {
         itemsIndexed(items) { index, item ->
-            SmallCourseItem()
+            SearchCourseItem()
         }
     }
 }
@@ -276,9 +289,9 @@ fun BottomSheetContent(
                 modifier = Modifier
                     .fillMaxWidth(),
                 contentPadding = PaddingValues(vertical = 10.dp),
-                state = rememberLazyListState(),
+                state = rememberLazyListState()
 
-                ) {
+            ) {
                 itemsIndexed(items) { index, item ->
                     Text(
                         text = item,
@@ -291,7 +304,7 @@ fun BottomSheetContent(
                             }
                             .background(
                                 if (index == current) {
-                                    Color(0xFF7C52C7)
+                                    TatarTheme.colors.backPrimary
                                 } else {
                                     Color.Transparent
                                 }
@@ -311,7 +324,7 @@ fun Toolbar(title: String = "Дәресләр") {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(60.dp)
+            .height(55.dp)
             .padding(horizontal = 20.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
@@ -322,7 +335,7 @@ fun Toolbar(title: String = "Дәресләр") {
                 style = TextStyle(
                     fontSize = 24.sp,
                     fontFamily = semibold,
-                    color = Color.White
+                    color = TatarTheme.colors.colorWhite
                 )
             )
             Image(
@@ -331,265 +344,125 @@ fun Toolbar(title: String = "Дәресләр") {
                 modifier = Modifier.padding(top = 5.dp)
             )
         }
-        Image(
-            painter = painterResource(id = R.drawable.ic_logo),
-            contentDescription = null,
-            modifier = Modifier
-                .size(70.dp)
-        )
+//        Image(
+//            painter = painterResource(id = R.drawable.ic_logo),
+//            contentDescription = null,
+//            modifier = Modifier
+//                .size(70.dp)
+//        )
 
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
-fun SearchField(openSearch: () -> Unit) {
+fun SearchField(searchState: MutableState<Boolean>) {
+    val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
+
     var text by rememberSaveable { mutableStateOf("") }
-    Row(
+
+    val backButtonSize
+            by animateDpAsState(targetValue = if (searchState.value) 30.dp else 0.dp)
+
+    val paddingTopSize
+            by animateDpAsState(targetValue = if (searchState.value) 8.dp else 0.dp)
+    val searchSize
+            by animateDpAsState(targetValue = if (searchState.value) 0.dp else 24.dp)
+    Card(
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 6.dp
+        ),
         modifier = Modifier
             .fillMaxWidth()
-            .height(50.dp)
-            .padding(horizontal = 20.dp)
-            .clip(RoundedCornerShape(10.dp))
-            .background(Color.White)
-            .padding(horizontal = 10.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.ic_search),
-            contentDescription = null,
-            Modifier.size(24.dp)
+            .padding(top = paddingTopSize)
+            .padding(horizontal = 20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = TatarTheme.colors.colorWhite
         )
-        TextField(
-            modifier = Modifier
-                .fillMaxWidth(),
-            value = text,
-            onValueChange = {
-                text = it
-            },
-            maxLines = 1,
-            textStyle = TextStyle(
-                fontFamily = semibold,
-                fontSize = 14.sp,
-            ),
-            interactionSource = remember { MutableInteractionSource() }
-                .also { interactionSource ->
-                    LaunchedEffect(interactionSource) {
-                        interactionSource.interactions.collect {
-                            if (it is PressInteraction.Release) {
-                                openSearch()
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(Color.White)
+                    .padding(horizontal = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                AnimatedContent(
+                    searchState.value,
+                    transitionSpec = {
+                        fadeIn(animationSpec = tween(durationMillis = 500)) with
+                                fadeOut(animationSpec = tween(durationMillis = 500))
+                    }, label = ""
+                ) { target->
+                    Icon(
+                        painter = painterResource(id = if(!target) R.drawable.ic_search else R.drawable.ic_arr_back),
+                        contentDescription = null,
+                        Modifier.size(40.dp)
+                            .clickable(
+                                enabled = target
+                            ) {
+                                searchState.value = false
+                                focusManager.clearFocus()
                             }
-                        }
-                    }
-                },
-            placeholder = {
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = "Дәреснең исеме, авторы яки бүлеге",
-                    style = TextStyle(
-                        fontFamily = semibold,
-                        fontSize = 13.sp,
-                        color = Color(0xFFC5C5C5)
+                            .padding(8.dp)
                     )
-                )
-            },
-            colors = TextFieldDefaults.textFieldColors(
-                containerColor = Color.White,
-                focusedIndicatorColor = Color.Transparent,
-                disabledIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-            )
-
-        )
-    }
-
-}
-
-@Composable
-fun CourseItem(
-    //courseItem
-) {
-    Box(
-        modifier = Modifier
-            .height(122.dp)
-            .aspectRatio(2.016f)
-            .clip(RoundedCornerShape(20.dp))
-            .background(Color.White)
-            .clickable {
-
-            }
-            .padding(start = 20.dp, top = 10.dp, bottom = 10.dp, end = 10.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .width(152.dp),
-                verticalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "Python",
-                    style = TextStyle(
-                        fontSize = 17.sp,
-                        fontFamily = semibold,
-                        color = Color.Black
-                    )
-                )
-                Image(
-                    painter = painterResource(id = R.drawable.ic_line_purple),
-                    contentDescription = null,
-                    modifier = Modifier.padding(top = 3.dp, bottom = 5.dp),
-                )
-                Text(
+                }
+                TextField(
                     modifier = Modifier
-                        .heightIn(min = 51.dp),
-                    text = "Python да веб-кушымталар" +
-                            "һәм нейросетилар ясыйлар," +
-                            "фәнни исәпләүләр үткәрәләр.",
-                    style = TextStyle(
-                        fontSize = 12.sp,
+                        .fillMaxWidth()
+                        .background(Color.Transparent)
+                        .offset(x=(-8).dp)
+                        .focusRequester(focusRequester),
+                    value = text,
+                    onValueChange = {
+                        text = it
+                    },
+                    maxLines = 1,
+                    textStyle = TextStyle(
                         fontFamily = semibold,
-                        color = Color(0xFFA7A7A7)
+                        fontSize = 14.sp,
                     ),
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis
-
-                )
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-
-                    ) {
-                    Text(
-                        text = "Айнур Г.",
-                        style = TextStyle(
-                            fontSize = 11.sp,
-                            fontFamily = semibold,
-                            color = Color(0xFF0E0025)
+                    interactionSource = remember { MutableInteractionSource() }
+                        .also { interactionSource ->
+                            LaunchedEffect(interactionSource) {
+                                interactionSource.interactions.collect {
+                                    if (it is PressInteraction.Release) {
+                                        searchState.value = true
+                                    }
+                                }
+                            }
+                        },
+                    placeholder = {
+                        Text(
+                            modifier = Modifier.fillMaxWidth(),
+                            text = "Дәреснең исеме, авторы яки бүлеге",
+                            style = TextStyle(
+                                fontFamily = semibold,
+                                fontSize = 13.sp,
+                                color = TatarTheme.colors.colorGray
+                            ),
+                            textAlign = TextAlign.Start
                         )
-                    )
-                    Box(
-                        modifier = Modifier
-                            .padding(horizontal = 5.dp)
-                            .width(0.7.dp)
-                            .height(15.dp)
-                            .background(Color(0x334F0E77))
-                    )
-                    Text(
-                        text = "12 дәрес",
-                        style = TextStyle(
-                            fontSize = 11.sp,
-                            fontFamily = semibold,
-                            color = Color(0xFF0E0025)
-                        )
-                    )
-                }
-            }
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_course_ex),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(50.dp)
-                        .align(Alignment.TopEnd),
-                )
+                    },
+                    colors = TextFieldDefaults.textFieldColors(
+                        containerColor = TatarTheme.colors.colorWhite,
+                        focusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                    ),
 
-                Image(
-                    painter = painterResource(id = R.drawable.ic_favourite),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(30.dp)
-                        .align(Alignment.BottomEnd),
                 )
             }
         }
     }
-}
 
-@Preview
-@Composable
-fun SmallCourseItem(
-    //courseItem
-) {
-    Box(
-        modifier = Modifier
-            .height(72.dp)
-            .aspectRatio(2.208f)
-            .clip(RoundedCornerShape(14.dp))
-            .background(Color.White)
-            .clickable {
-
-            }
-            .padding(horizontal = 10.dp, vertical = 10.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .width(92.dp),
-                verticalArrangement = Arrangement.SpaceEvenly
-            ) {
-                Box {
-                    Text(
-                        modifier = Modifier
-                            .padding(bottom = 4.dp),
-                        text = "Python",
-                        style = TextStyle(
-                            fontSize = 14.sp,
-                            fontFamily = semibold,
-                            color = Color.Black
-                        ),
-
-                        )
-                    Spacer(
-                        modifier = Modifier
-                            .height(1.dp)
-                            .width(20.dp)
-                            .background(Color(0xFF4F0E77))
-                            .align(Alignment.BottomStart),
-
-                        )
-                }
-
-//                Text(
-//                    text = "Айнур Г.",
-//                    style = TextStyle(
-//                        fontSize = 11.sp,
-//                        fontFamily = medium,
-//                        color = Color(0xFF0E0025)
-//                    )
-//                )
-                Text(
-                    text = "12 дәрес",
-                    style = TextStyle(
-                        fontSize = 11.sp,
-                        fontFamily = semibold,
-                        color = Color(0xFF0E0025)
-                    )
-                )
-            }
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_course_ex),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(37.dp)
-                        .align(Alignment.Center),
-                )
-            }
-        }
-    }
 }
 
 @Composable
@@ -634,7 +507,7 @@ fun BottomPart(openSheet: () -> Unit, title: String) {
                     style = TextStyle(
                         fontSize = 20.sp,
                         fontFamily = semibold,
-                        color = Color.White
+                        color = TatarTheme.colors.colorWhite
                     )
                 )
             }
