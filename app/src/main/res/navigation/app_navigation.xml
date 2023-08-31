@@ -2,8 +2,18 @@
 <navigation xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/main_navigation"
-    app:startDestination="@id/navigation_fragment"
+    app:startDestination="@id/greeting_fragment"
     >
+    <fragment
+        android:id="@+id/greeting_fragment"
+        android:name="com.inno.tatarbyhack.ui.greeting.GreetingFragment"
+        android:label="greetingFragment" >
+        <action
+            app:popEnterAnim="@anim/slide_in_left"
+            app:enterAnim="@anim/slide_in_right"
+            android:id="@+id/action_start"
+            app:destination="@id/navigation_fragment" />
+    </fragment>
     <fragment
         android:id="@+id/navigation_fragment"
         android:name="com.inno.tatarbyhack.ui.navigation_fragment.NavigationFragment"
