@@ -1,4 +1,4 @@
-package com.inno.tatarbyhack.ui.navigation_fragment.home
+package com.inno.tatarbyhack.ui.navigation_fragment.courses
 
 import android.app.Activity
 import android.os.Bundle
@@ -43,7 +43,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.rememberModalBottomSheetState
@@ -400,13 +399,15 @@ fun SearchField(searchState: MutableState<Boolean>) {
                         fadeIn(animationSpec = tween(durationMillis = 500)) with
                                 fadeOut(animationSpec = tween(durationMillis = 500))
                     }, label = ""
-                ) { target->
+                ) { target ->
                     Icon(
                         painter = painterResource(id = if(!target) R.drawable.ic_search else R.drawable.ic_arr_back),
                         contentDescription = null,
                         Modifier.size(40.dp)
                             .clickable(
-                                enabled = target
+                                enabled = target,
+                                interactionSource = MutableInteractionSource(),
+                                indication =  null
                             ) {
                                 searchState.value = false
                                 focusManager.clearFocus()

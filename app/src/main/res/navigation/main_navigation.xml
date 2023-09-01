@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/navigation_main"
-        android:name="com.inno.tatarbyhack.ui.navigation_fragment.home.HomeFragment"
+        android:name="com.inno.tatarbyhack.ui.navigation_fragment.courses.HomeFragment"
         android:label="@string/title_home" />
 
     <fragment

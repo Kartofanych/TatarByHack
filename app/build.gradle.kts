@@ -84,4 +84,9 @@ dependencies {
     //bottom sheet
     implementation ("androidx.compose.ui:ui:1.4.0-beta02")
     implementation ("androidx.compose.material:material:1.4.0-beta02")
+
+    //exo player
+    implementation ("androidx.media3:media3-exoplayer:1.1.0")
+    implementation ("androidx.media3:media3-ui:1.1.0")
+    implementation ("androidx.media3:media3-common:1.1.0")
 }

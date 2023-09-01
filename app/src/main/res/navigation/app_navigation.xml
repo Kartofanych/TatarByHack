@@ -2,7 +2,7 @@
 <navigation xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/main_navigation"
-    app:startDestination="@id/greeting_fragment"
+    app:startDestination="@id/lesson_fragment"
     >
     <fragment
         android:id="@+id/greeting_fragment"
@@ -35,6 +35,28 @@
 <!--            />-->
     </fragment>
 
+    <fragment
+        android:id="@+id/lesson_fragment"
+        android:name="com.inno.tatarbyhack.ui.lesson.LessonFragment"
+        android:label="lessonFragment" >
+        <argument
+            android:name="lessonId"
+            android:defaultValue="1"
+            app:argType="integer"
+            />
+        <argument
+            android:name="courseId"
+            android:defaultValue="1"
+            app:argType="integer"
+            />
+        <action
+            app:popEnterAnim="@anim/slide_in_left"
+            app:enterAnim="@anim/alpha_up"
+            app:exitAnim="@anim/alpha_down"
+            android:id="@+id/action_new_lesson"
+            app:destination="@id/lesson_fragment"
+            app:popUpTo="@id/lesson_fragment"/>
+    </fragment>
 
 
 
