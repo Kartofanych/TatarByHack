@@ -8,8 +8,6 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.with
@@ -55,6 +53,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.inno.tatarbyhack.R
 import com.inno.tatarbyhack.ui.theme.TatarByHackTheme
@@ -93,11 +92,23 @@ class LessonFragment : Fragment() {
                         Box(
                             modifier = Modifier.fillMaxSize()
                         ) {
-                            LessonContent(paddingValues, lessonId = lessonId.value, drawerState.value, animatedDrawerSize) {
-                                drawerState.value = !drawerState.value
+                            LessonContent(
+                                paddingValues,
+                                lessonId = lessonId.value,
+                                drawerState.value,
+                                animatedDrawerSize,
+                                {
+                                    drawerState.value = !drawerState.value
+                                }
+                            ) {
+                                val action = LessonFragmentDirections.actionPlayer()
+                                action.url = "some url"
+                                findNavController().navigate(action)
                             }
-                            Box(modifier = Modifier
-                                .align(Alignment.CenterEnd)) {
+                            Box(
+                                modifier = Modifier
+                                    .align(Alignment.CenterEnd)
+                            ) {
                                 DrawerContent(animatedDrawerSize, lessonId.value) { newId ->
                                     lessonId.value = newId
                                     drawerState.value = false
@@ -120,34 +131,9 @@ fun LessonContent(
     lessonId: Int,
     drawerState: Boolean,
     animatedDrawerSize: Dp,
-    openDrawer: () -> Unit
+    openDrawer: () -> Unit,
+    openPlayer: () -> Unit
 ) {
-
-//    val localContext = LocalContext.current
-//    val lifecycleOwner = LocalLifecycleOwner.current
-//    var lifecycle by remember { mutableStateOf(Lifecycle.Event.ON_CREATE) }
-//
-//    var isVideoReady by remember { mutableStateOf(false) }
-//
-//
-//    val exoPlayer = remember {
-//        ExoPlayer.Builder(localContext).build().apply {
-//            addListener(object : Player.Listener {
-//                override fun onRenderedFirstFrame() {
-//                    super.onRenderedFirstFrame()
-//                    isVideoReady = true
-//                }
-//            })
-//        }
-//    }
-//
-//    LaunchedEffect(key1 = Unit){
-//        exoPlayer.setMediaItem(
-//            MediaItem.fromUri("some uri")
-//        )
-//        exoPlayer.prepare()
-//        exoPlayer.repeatMode = Player.REPEAT_MODE_ONE
-//    }
 
 
     Box(
@@ -194,7 +180,10 @@ fun LessonContent(
                         .padding(20.dp)
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(20.dp))
-                        .aspectRatio(1.89f),
+                        .aspectRatio(1.89f)
+                        .clickable {
+                            openPlayer()
+                        },
                 ) {
                     Image(
                         modifier = Modifier
@@ -224,7 +213,7 @@ fun LessonContent(
                             .clickable {
 
                             },
-                        painter = painterResource(id = R.drawable.ic_play),
+                        painter = painterResource(id = R.drawable.ic_play_video),
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
                     )
@@ -327,10 +316,13 @@ fun preview() {
             color = MaterialTheme.colorScheme.background
         ) {
             LessonContent(
-                PaddingValues(1.dp), 1, true, 2.dp
-            ) {
+                PaddingValues(1.dp), 1, true, 2.dp, {
 
-            }
+                },
+                {
+
+                }
+            )
         }
     }
 }

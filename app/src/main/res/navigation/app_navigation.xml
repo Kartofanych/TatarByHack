@@ -51,13 +51,29 @@
             />
         <action
             app:popEnterAnim="@anim/slide_in_left"
-            app:enterAnim="@anim/alpha_up"
-            app:exitAnim="@anim/alpha_down"
-            android:id="@+id/action_new_lesson"
-            app:destination="@id/lesson_fragment"
-            app:popUpTo="@id/lesson_fragment"/>
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_in_right"
+            android:id="@+id/action_player"
+            app:destination="@id/player_fragment"/>
     </fragment>
 
+
+    <fragment
+        android:id="@+id/player_fragment"
+        android:name="com.inno.tatarbyhack.ui.player.PlayerFragment"
+        android:label="lessonFragment" >
+        <argument
+            android:name="url"
+            android:defaultValue="some_url"
+            app:argType="string"
+            />
+        <action
+            app:popEnterAnim="@anim/slide_in_left"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_in_right"
+            android:id="@+id/back_lesson"
+            app:popUpTo="@id/lesson_fragment"/>
+    </fragment>
 
 
 </navigation>

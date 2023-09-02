@@ -77,6 +77,7 @@ dependencies {
 
     implementation ("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
     // Lifecycle components
     implementation ("androidx.lifecycle:lifecycle-extensions:2.2.0")
     implementation ("androidx.lifecycle:lifecycle-common-java8:2.6.1")
@@ -89,4 +90,6 @@ dependencies {
     implementation ("androidx.media3:media3-exoplayer:1.1.0")
     implementation ("androidx.media3:media3-ui:1.1.0")
     implementation ("androidx.media3:media3-common:1.1.0")
+
+    implementation ("com.google.accompanist:accompanist-systemuicontroller:0.30.1")
 }
