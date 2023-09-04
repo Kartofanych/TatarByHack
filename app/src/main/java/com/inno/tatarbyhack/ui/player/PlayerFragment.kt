@@ -1,5 +1,6 @@
 package com.inno.tatarbyhack.ui.player
 
+import android.content.Context
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.util.Log
@@ -12,10 +13,8 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandIn
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
-import androidx.compose.animation.shrinkOut
 import androidx.compose.animation.with
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -27,10 +26,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -47,23 +46,26 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.media3.common.Player
 import androidx.media3.ui.PlayerView
 import androidx.navigation.fragment.findNavController
+import com.google.accompanist.systemuicontroller.SystemUiController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.inno.tatarbyhack.App
 import com.inno.tatarbyhack.R
@@ -77,10 +79,17 @@ import kotlinx.coroutines.launch
 
 class PlayerFragment : Fragment() {
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        hideSystemUI()
+
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
     }
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -103,8 +112,8 @@ class PlayerFragment : Fragment() {
                     var lifecycle by remember { mutableStateOf(Lifecycle.Event.ON_CREATE) }
 
                     val systemUiController = rememberSystemUiController()
-                    systemUiController.isStatusBarVisible = false
-                    systemUiController.isSystemBarsVisible = false
+                    //systemUiController.isStatusBarVisible = false
+                    //systemUiController.isSystemBarsVisible = false
 
                     DisposableEffect(lifecycleOwner) {
                         val observer = LifecycleEventObserver { _, event ->
@@ -119,11 +128,12 @@ class PlayerFragment : Fragment() {
                     }
 
                     PlayerContent(
-                        //"https://filesamples.com/samples/video/mp4/sample_1280x720.mp4",
+                        "https://getsamplefiles.com/download/mp4/sample-3.mp4",
                         //"https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_30mb.mp4",
-                        "https://download.samplelib.com/mp4/sample-30s.mp4",
+                        //"https://download.samplelib.com/mp4/sample-30s.mp4",
                         lifecycle,
-                        viewModel
+                        viewModel,
+                        systemUiController
                     ) {
                         findNavController().popBackStack()
                     }
@@ -135,11 +145,31 @@ class PlayerFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+    }
+
+    override fun onDetach() {
+        super.onDetach()
         requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        showSystemUI()
+    }
+
+    private fun hideSystemUI() {
+        WindowCompat.setDecorFitsSystemWindows(requireActivity().window, false)
+        WindowInsetsControllerCompat(requireActivity().window, requireActivity().findViewById(R.id.main_host)).let { controller ->
+            controller.hide(WindowInsetsCompat.Type.systemBars())
+            controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        }
+    }
+
+    private fun showSystemUI() {
+        WindowCompat.setDecorFitsSystemWindows(requireActivity().window, true)
+        WindowInsetsControllerCompat(requireActivity().window, requireActivity().findViewById(R.id.main_host)).show(WindowInsetsCompat.Type.systemBars())
     }
 
 
 }
+
+
 
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalMaterial3Api::class)
@@ -148,6 +178,7 @@ fun PlayerContent(
     videoUrl: String,
     lifecycle: Lifecycle.Event,
     viewModel: PlayerViewModel,
+    systemUiController: SystemUiController,
     popBack: () -> Boolean
 ) {
 
@@ -163,7 +194,7 @@ fun PlayerContent(
     var isVideoReady by remember { mutableStateOf(false) }
 
     val currentTime = remember { mutableStateOf(viewModel.exoPlayer.currentPosition) }
-    
+
 
     LaunchedEffect(key1 = Unit) {
         viewModel.playVideo(videoUrl, {
@@ -330,6 +361,7 @@ fun PlayerContent(
                     modifier = Modifier
                         .padding(5.dp)
                         .size(animatedTimeButtonsSize)
+                        .clip(RoundedCornerShape(25.dp))
                         .clickable {
                             viewModel.exoPlayer.seekTo(viewModel.exoPlayer.currentPosition - 5000)
                         },
@@ -347,8 +379,10 @@ fun PlayerContent(
                 ) { target ->
                     Icon(
                         modifier = Modifier
-                            .padding(5.dp)
+                            .padding(10.dp)
                             .size(animatedPlayButtonSize)
+                            .clip(RoundedCornerShape(25.dp))
+                            .padding(if (paused) 5.dp else 0.dp)
                             .clickable {
                                 if (paused) {
                                     paused = false
@@ -369,6 +403,7 @@ fun PlayerContent(
                     modifier = Modifier
                         .padding(5.dp)
                         .size(animatedTimeButtonsSize)
+                        .clip(RoundedCornerShape(25.dp))
                         .clickable {
                             viewModel.exoPlayer.seekTo(viewModel.exoPlayer.currentPosition + 5000)
                         },
