@@ -69,6 +69,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -109,7 +110,7 @@ class HomeFragment : Fragment() {
 }
 
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
 @Composable
 fun CoursesPage(composeView: ComposeView) {
     val sheetState = rememberModalBottomSheetState(
@@ -159,12 +160,21 @@ fun CoursesPage(composeView: ComposeView) {
             modifier = Modifier
                 .fillMaxSize()
                 .background(animatedBackground)
-                .padding(top = 24.dp)
             //MaterialTheme.colorScheme.background
         ) {
+            AnimatedContent(targetState = searchState.value) {
+                Image(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    painter = painterResource(id = if(it) R.drawable.pattern_white_background else R.drawable.pattern_dark_background),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop
+                )
+            }
             Column(
                 modifier = Modifier
-                    .fillMaxSize(),
+                    .fillMaxSize()
+                    .padding(top = 24.dp),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
 
@@ -212,7 +222,6 @@ fun CoursesPage(composeView: ComposeView) {
 @Composable
 fun TopPart() {
 
-
     val items = listOf("1", "2", "3", "4")
     Column(
         modifier = Modifier
@@ -228,7 +237,7 @@ fun TopPart() {
                 color = Color.White
             )
         )
-        // LazyRow to display your items horizontally
+
         LazyRow(
             modifier = Modifier
                 .fillMaxWidth(),
@@ -323,7 +332,7 @@ fun Toolbar(title: String = "Дәресләр") {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(55.dp)
+            .height(70.dp)
             .padding(horizontal = 20.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
@@ -343,12 +352,12 @@ fun Toolbar(title: String = "Дәресләр") {
                 modifier = Modifier.padding(top = 5.dp)
             )
         }
-//        Image(
-//            painter = painterResource(id = R.drawable.ic_logo),
-//            contentDescription = null,
-//            modifier = Modifier
-//                .size(70.dp)
-//        )
+        Image(
+            painter = painterResource(id = R.drawable.ic_logo),
+            contentDescription = null,
+            modifier = Modifier
+                .size(70.dp)
+        )
 
     }
 }
@@ -403,11 +412,12 @@ fun SearchField(searchState: MutableState<Boolean>) {
                     Icon(
                         painter = painterResource(id = if(!target) R.drawable.ic_search else R.drawable.ic_arr_back),
                         contentDescription = null,
-                        Modifier.size(40.dp)
+                        Modifier
+                            .size(40.dp)
                             .clickable(
                                 enabled = target,
                                 interactionSource = MutableInteractionSource(),
-                                indication =  null
+                                indication = null
                             ) {
                                 searchState.value = false
                                 focusManager.clearFocus()
@@ -419,7 +429,7 @@ fun SearchField(searchState: MutableState<Boolean>) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(Color.Transparent)
-                        .offset(x=(-8).dp)
+                        .offset(x = (-8).dp)
                         .focusRequester(focusRequester),
                     value = text,
                     onValueChange = {

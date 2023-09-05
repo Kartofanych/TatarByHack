@@ -2,7 +2,7 @@
 <navigation xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/main_navigation"
-    app:startDestination="@id/lesson_fragment"
+    app:startDestination="@id/greeting_fragment"
     >
     <fragment
         android:id="@+id/greeting_fragment"

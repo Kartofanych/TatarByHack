@@ -27,6 +27,7 @@ class YandexTodoColors(
     labelDisable: Color,
     colorRed: Color,
     colorGreen: Color,
+    colorOrange: Color,
     colorBlue: Color,
     colorGray: Color,
     colorNavItems: Color,
@@ -53,6 +54,8 @@ class YandexTodoColors(
         private set
     var colorBlue by mutableStateOf(colorBlue)
         private set
+    var colorOrange by mutableStateOf(colorOrange)
+        private set
     var colorGray by mutableStateOf(colorGray)
         private set
     var colorGrayLight by mutableStateOf(colorNavItems)
@@ -76,6 +79,7 @@ class YandexTodoColors(
         colorRed = other.colorRed
         colorGreen = other.colorGreen
         colorBlue = other.colorBlue
+        colorOrange = other.colorOrange
         colorGray = other.colorGray
         colorGrayLight = other.colorGrayLight
         colorWhite = other.colorWhite
@@ -96,6 +100,7 @@ private val DarkColorScheme = YandexTodoColors(
     colorRed = Color.Red,
     colorGreen = Color.Green,
     colorBlue = Color.Blue,
+    colorOrange = Orange,
     colorGray = Gray,
     colorNavItems = NavGray,
     colorWhite = White,
@@ -115,12 +120,13 @@ private val LightColorScheme = YandexTodoColors(
     colorRed = Color.Red,
     colorGreen = Color.Green,
     colorBlue = Color.Blue,
+    colorOrange = Orange,
     colorGray = Gray,
     colorNavItems = NavGray,
     colorWhite = White,
     backPrimary = Purple,
     backSecondary = DarkPurple,
-    backElevated = White,
+    backElevated = LightPurple,
 )
 @Composable
 fun ProvideYandexTodoColors(
