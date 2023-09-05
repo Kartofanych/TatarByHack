@@ -92,4 +92,6 @@ dependencies {
     implementation ("androidx.media3:media3-common:1.1.0")
 
     implementation ("com.google.accompanist:accompanist-systemuicontroller:0.30.1")
+
+    implementation("io.coil-kt:coil-compose:2.2.0")
 }

@@ -80,16 +80,24 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.inno.tatarbyhack.App
 import com.inno.tatarbyhack.R
+import com.inno.tatarbyhack.ui.navigation_fragment.NavigationViewModel
 import com.inno.tatarbyhack.ui.navigation_fragment.compose_elements.CourseItem
 import com.inno.tatarbyhack.ui.navigation_fragment.compose_elements.SearchCourseItem
 import com.inno.tatarbyhack.ui.navigation_fragment.compose_elements.SmallCourseItem
+import com.inno.tatarbyhack.ui.player.PlayerViewModel
 import com.inno.tatarbyhack.ui.theme.TatarByHackTheme
 import com.inno.tatarbyhack.ui.theme.TatarTheme
 import com.inno.tatarbyhack.ui.theme.semibold
+import com.inno.tatarbyhack.utils.ViewModelFactory
+import com.inno.tatarbyhack.utils.viewModelFactory
 import kotlinx.coroutines.launch
 
-class HomeFragment : Fragment() {
+class CoursesFragment: Fragment() {
+
 
 
     override fun onCreateView(
@@ -98,10 +106,14 @@ class HomeFragment : Fragment() {
     ): View = ComposeView(requireContext()).apply {
         setContent {
             TatarByHackTheme {
-
-                // A surface container using the 'background' color from the theme
+                //download
+                val viewModel = viewModel<NavigationViewModel>(
+                    factory = viewModelFactory {
+                        NavigationViewModel(App.appModule.repository)
+                    }
+                )
                 CoursesPage(
-                    this
+                    this, viewModel
                 )
             }
         }
@@ -112,7 +124,7 @@ class HomeFragment : Fragment() {
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
 @Composable
-fun CoursesPage(composeView: ComposeView) {
+fun CoursesPage(composeView: ComposeView, viewModel: NavigationViewModel) {
     val sheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
     )
@@ -131,12 +143,17 @@ fun CoursesPage(composeView: ComposeView) {
     val window = (localContext as Activity).window
 
 
-    val popularCourses = listOf("Телләрне өйрәнү", "IT", "ОГЭ/ЕГЭ", "Табигый фәннәр")
+    val popularCourses = listOf("Телләрне өйрәнү", "IT", "Табигый фәннәр")
     val currPopularCourse = rememberSaveable { mutableStateOf(0) }
 
-    val animatedBackground by animateColorAsState(targetValue = if(searchState.value) Color.White else Color(0xFF7C52C6))
+    val animatedBackground by animateColorAsState(
+        targetValue = if (searchState.value) Color.White else Color(
+            0xFF7C52C6
+        )
+    )
 
-    WindowCompat.getInsetsController(window, composeView).isAppearanceLightStatusBars = searchState.value
+    WindowCompat.getInsetsController(window, composeView).isAppearanceLightStatusBars =
+        searchState.value
 
 
     ModalBottomSheetLayout(
@@ -166,7 +183,7 @@ fun CoursesPage(composeView: ComposeView) {
                 Image(
                     modifier = Modifier
                         .fillMaxSize(),
-                    painter = painterResource(id = if(it) R.drawable.pattern_white_background else R.drawable.pattern_dark_background),
+                    painter = painterResource(id = if (it) R.drawable.pattern_white_background else R.drawable.pattern_dark_background),
                     contentDescription = null,
                     contentScale = ContentScale.Crop
                 )
@@ -188,14 +205,14 @@ fun CoursesPage(composeView: ComposeView) {
 
                 SearchField(searchState)
 
-                if(searchState.value) {
+                if (searchState.value) {
                     SearchItems()
                 }
 
 
                 if (!searchState.value) {
 
-                    TopPart()
+                    TopPart(viewModel)
 
                     Spacer(
                         modifier = Modifier
@@ -220,7 +237,7 @@ fun CoursesPage(composeView: ComposeView) {
 }
 
 @Composable
-fun TopPart() {
+fun TopPart(viewModel: NavigationViewModel) {
 
     val items = listOf("1", "2", "3", "4")
     Column(
@@ -249,8 +266,8 @@ fun TopPart() {
             state = rememberLazyListState(),
 
             ) {
-            itemsIndexed(items) { index, item ->
-                CourseItem()
+            itemsIndexed(viewModel.popularCourses.value) { index, item ->
+                CourseItem(item)
             }
         }
     }
@@ -410,7 +427,7 @@ fun SearchField(searchState: MutableState<Boolean>) {
                     }, label = ""
                 ) { target ->
                     Icon(
-                        painter = painterResource(id = if(!target) R.drawable.ic_search else R.drawable.ic_arr_back),
+                        painter = painterResource(id = if (!target) R.drawable.ic_search else R.drawable.ic_arr_back),
                         contentDescription = null,
                         Modifier
                             .size(40.dp)
@@ -469,7 +486,7 @@ fun SearchField(searchState: MutableState<Boolean>) {
                         unfocusedIndicatorColor = Color.Transparent,
                     ),
 
-                )
+                    )
             }
         }
     }
@@ -481,7 +498,7 @@ fun BottomPart(openSheet: () -> Unit, title: String) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .aspectRatio(0.9f)
+            .aspectRatio(0.91f)
     ) {
         Image(
             painter = painterResource(id = R.drawable.ic_courses_bottom_back),

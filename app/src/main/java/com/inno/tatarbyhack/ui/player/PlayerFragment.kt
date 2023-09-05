@@ -103,7 +103,7 @@ class PlayerFragment : Fragment() {
                 TatarByHackTheme {
                     val viewModel = viewModel<PlayerViewModel>(
                         factory = viewModelFactory {
-                            PlayerViewModel(App.appModule.player)
+                            PlayerViewModel(App.appModule.context)
                         }
                     )
 

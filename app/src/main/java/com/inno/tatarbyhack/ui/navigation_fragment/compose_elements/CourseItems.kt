@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.AppBarDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
@@ -26,27 +25,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
+import coil.compose.rememberAsyncImagePainter
 import com.inno.tatarbyhack.R
+import com.inno.tatarbyhack.domain.models.Course
 import com.inno.tatarbyhack.ui.theme.TatarTheme
 import com.inno.tatarbyhack.ui.theme.medium
 import com.inno.tatarbyhack.ui.theme.semibold
 
 
 @Composable
-fun CourseItem(
-    //courseItem
-) {
+fun CourseItem(item: Course) {
     Box(
         modifier = Modifier
             .height(122.dp)
@@ -69,7 +64,7 @@ fun CourseItem(
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Python",
+                    text = item.courseName,
                     style = TextStyle(
                         fontSize = 17.sp,
                         fontFamily = semibold,
@@ -84,9 +79,7 @@ fun CourseItem(
                 Text(
                     modifier = Modifier
                         .heightIn(min = 51.dp),
-                    text = "Python да веб-кушымталар" +
-                            "һәм нейросетилар ясыйлар," +
-                            "фәнни исәпләүләр үткәрәләр.",
+                    text = item.desc,
                     style = TextStyle(
                         fontSize = 12.sp,
                         fontFamily = semibold,
@@ -101,7 +94,7 @@ fun CourseItem(
 
                     ) {
                     Text(
-                        text = "Айнур Г.",
+                        text = item.authorName.split(" ")[0]+" "+item.authorName.split(" ")[0].toCharArray()[0]+".",
                         style = TextStyle(
                             fontSize = 11.sp,
                             fontFamily = semibold,
@@ -130,7 +123,7 @@ fun CourseItem(
                     .fillMaxSize()
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.ic_course_ex),
+                    painter = rememberAsyncImagePainter(item.photoLink),
                     contentDescription = null,
                     modifier = Modifier
                         .size(50.dp)

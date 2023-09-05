@@ -1,13 +1,15 @@
 package com.inno.tatarbyhack.ui.player
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 
-class PlayerViewModel(val exoPlayer: ExoPlayer) : ViewModel() {
+class PlayerViewModel(context: Context) : ViewModel() {
 
+    val exoPlayer = ExoPlayer.Builder(context).build()
     private var count = 0
     init {
         exoPlayer.prepare()

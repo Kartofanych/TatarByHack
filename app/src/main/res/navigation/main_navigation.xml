@@ -7,12 +7,12 @@
 
     <fragment
         android:id="@+id/navigation_main"
-        android:name="com.inno.tatarbyhack.ui.navigation_fragment.courses.HomeFragment"
+        android:name="com.inno.tatarbyhack.ui.navigation_fragment.courses.CoursesFragment"
         android:label="@string/title_home" />
 
     <fragment
         android:id="@+id/navigation_vebinar"
-        android:name="com.inno.tatarbyhack.ui.navigation_fragment.courses.HomeFragment"
+        android:name="com.inno.tatarbyhack.ui.navigation_fragment.courses.CoursesFragment"
         android:label="@string/title_dashboard" />
 
     <fragment
