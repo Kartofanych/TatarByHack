@@ -10,13 +10,10 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandIn
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkOut
-import androidx.compose.animation.with
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -57,6 +54,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -80,19 +78,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
-import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.inno.tatarbyhack.App
 import com.inno.tatarbyhack.R
-import com.inno.tatarbyhack.ui.navigation_fragment.NavigationViewModel
+import com.inno.tatarbyhack.domain.models.Course
 import com.inno.tatarbyhack.ui.navigation_fragment.compose_elements.CourseItem
 import com.inno.tatarbyhack.ui.navigation_fragment.compose_elements.SearchCourseItem
 import com.inno.tatarbyhack.ui.navigation_fragment.compose_elements.SmallCourseItem
-import com.inno.tatarbyhack.ui.player.PlayerViewModel
 import com.inno.tatarbyhack.ui.theme.TatarByHackTheme
 import com.inno.tatarbyhack.ui.theme.TatarTheme
 import com.inno.tatarbyhack.ui.theme.semibold
-import com.inno.tatarbyhack.utils.ViewModelFactory
 import com.inno.tatarbyhack.utils.viewModelFactory
 import kotlinx.coroutines.launch
 
@@ -107,13 +102,14 @@ class CoursesFragment: Fragment() {
         setContent {
             TatarByHackTheme {
                 //download
-                val viewModel = viewModel<NavigationViewModel>(
+                val viewModel = viewModel<CoursesViewModel>(
                     factory = viewModelFactory {
-                        NavigationViewModel(App.appModule.repository)
+                        CoursesViewModel(App.appModule.repository)
                     }
                 )
                 CoursesPage(
-                    this, viewModel
+                    viewModel,
+                    this
                 )
             }
         }
@@ -124,7 +120,11 @@ class CoursesFragment: Fragment() {
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
 @Composable
-fun CoursesPage(composeView: ComposeView, viewModel: NavigationViewModel) {
+fun CoursesPage(viewModel: CoursesViewModel, composeView: ComposeView) {
+
+    val localContext = LocalContext.current
+    val window = (localContext as Activity).window
+
     val sheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
     )
@@ -138,13 +138,13 @@ fun CoursesPage(composeView: ComposeView, viewModel: NavigationViewModel) {
     }
 
 
-    val localContext = LocalContext.current
     val scope = rememberCoroutineScope()
-    val window = (localContext as Activity).window
 
+    val searchList = rememberSaveable { mutableStateOf(listOf<Course>()) }
 
-    val popularCourses = listOf("Телләрне өйрәнү", "IT", "Табигый фәннәр")
-    val currPopularCourse = rememberSaveable { mutableStateOf(0) }
+    val recommendedCoursesTitles = listOf("Телләрне өйрәнү", "IT", "Табигый фәннәр")
+    val currRecommendedCourse = rememberSaveable { mutableStateOf(0) }
+    val recommendedCourses = viewModel.recommendedCourses.collectAsState()
 
     val animatedBackground by animateColorAsState(
         targetValue = if (searchState.value) Color.White else Color(
@@ -156,6 +156,7 @@ fun CoursesPage(composeView: ComposeView, viewModel: NavigationViewModel) {
         searchState.value
 
 
+
     ModalBottomSheetLayout(
         sheetState = sheetState,
         sheetContent = {
@@ -165,10 +166,10 @@ fun CoursesPage(composeView: ComposeView, viewModel: NavigationViewModel) {
                     scope.launch {
                         sheetState.hide()
                     }
-                    currPopularCourse.value = i
+                    currRecommendedCourse.value = i
                 },
-                items = popularCourses,
-                current = currPopularCourse.value
+                items = recommendedCoursesTitles,
+                current = currRecommendedCourse.value
             )
         },
         sheetBackgroundColor = Color.Transparent
@@ -177,7 +178,6 @@ fun CoursesPage(composeView: ComposeView, viewModel: NavigationViewModel) {
             modifier = Modifier
                 .fillMaxSize()
                 .background(animatedBackground)
-            //MaterialTheme.colorScheme.background
         ) {
             AnimatedContent(targetState = searchState.value) {
                 Image(
@@ -188,9 +188,10 @@ fun CoursesPage(composeView: ComposeView, viewModel: NavigationViewModel) {
                     contentScale = ContentScale.Crop
                 )
             }
+
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .fillMaxWidth()
                     .padding(top = 24.dp),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
@@ -198,37 +199,54 @@ fun CoursesPage(composeView: ComposeView, viewModel: NavigationViewModel) {
                 AnimatedVisibility(
                     !searchState.value,
                     enter = expandIn(),
-                    exit = shrinkOut()
+                    exit = shrinkOut(),
                 ) {
                     Toolbar(title = "Дәресләр")
                 }
 
-                SearchField(searchState)
-
-                if (searchState.value) {
-                    SearchItems()
-                }
+                SearchField(searchState, viewModel, searchList)
 
 
-                if (!searchState.value) {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    androidx.compose.animation.AnimatedVisibility(
+                        searchState.value,
+                        enter = slideInHorizontally(initialOffsetX = { it + it / 2 }),
+                        exit = slideOutHorizontally(targetOffsetX = { it + it / 2 })
+                    ) {
+                        SearchItems(searchList)
+                    }
 
-                    TopPart(viewModel)
 
-                    Spacer(
-                        modifier = Modifier
-                            .height(0.7.dp)
-                            .fillMaxWidth()
-                            .background(Color(0x33FFFFFF))
-                    )
-                    BottomPart(
-                        openSheet = {
-                            showModalSheet.value = !showModalSheet.value
-                            scope.launch {
-                                sheetState.show()
-                            }
-                        },
-                        popularCourses[currPopularCourse.value]
-                    )
+                    androidx.compose.animation.AnimatedVisibility(
+                        !searchState.value,
+                        enter = slideInHorizontally(initialOffsetX = { -it / 2 - it }),
+                        exit = slideOutHorizontally(targetOffsetX = { -it / 2 - it }),
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        Column(
+                            Modifier.fillMaxSize()
+                        ) {
+
+                            TopPart(viewModel)
+
+                            Spacer(
+                                modifier = Modifier
+                                    .height(0.7.dp)
+                                    .fillMaxWidth()
+                                    .background(Color(0x33FFFFFF))
+                            )
+                            BottomPart(
+                                openSheet = {
+                                    showModalSheet.value = !showModalSheet.value
+                                    scope.launch {
+                                        sheetState.show()
+                                    }
+                                },
+                                title = recommendedCoursesTitles[currRecommendedCourse.value],
+                                recommendedCourses = recommendedCourses.value[currRecommendedCourse.value]
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -237,7 +255,7 @@ fun CoursesPage(composeView: ComposeView, viewModel: NavigationViewModel) {
 }
 
 @Composable
-fun TopPart(viewModel: NavigationViewModel) {
+fun TopPart(viewModel: CoursesViewModel) {
 
     val items = listOf("1", "2", "3", "4")
     Column(
@@ -274,8 +292,7 @@ fun TopPart(viewModel: NavigationViewModel) {
 }
 
 @Composable
-fun SearchItems() {
-    val items = listOf("1", "2", "3", "4")
+fun SearchItems(searchList: MutableState<List<Course>>) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -286,8 +303,8 @@ fun SearchItems() {
 
 
     ) {
-        itemsIndexed(items) { index, item ->
-            SearchCourseItem()
+        itemsIndexed(searchList.value) { index, item ->
+            SearchCourseItem(item)
         }
     }
 }
@@ -379,28 +396,26 @@ fun Toolbar(title: String = "Дәресләр") {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchField(searchState: MutableState<Boolean>) {
+fun SearchField(
+    searchState: MutableState<Boolean>,
+    viewModel: CoursesViewModel,
+    searchList: MutableState<List<Course>>
+) {
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
 
     var text by rememberSaveable { mutableStateOf("") }
 
-    val backButtonSize
-            by animateDpAsState(targetValue = if (searchState.value) 30.dp else 0.dp)
-
-    val paddingTopSize
-            by animateDpAsState(targetValue = if (searchState.value) 8.dp else 0.dp)
-    val searchSize
-            by animateDpAsState(targetValue = if (searchState.value) 0.dp else 24.dp)
     Card(
         elevation = CardDefaults.cardElevation(
             defaultElevation = 6.dp
         ),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = paddingTopSize)
+            .padding(vertical = 10.dp)
             .padding(horizontal = 20.dp),
         colors = CardDefaults.cardColors(
             containerColor = TatarTheme.colors.colorWhite
@@ -419,20 +434,13 @@ fun SearchField(searchState: MutableState<Boolean>) {
                     .padding(horizontal = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                AnimatedContent(
-                    searchState.value,
-                    transitionSpec = {
-                        fadeIn(animationSpec = tween(durationMillis = 500)) with
-                                fadeOut(animationSpec = tween(durationMillis = 500))
-                    }, label = ""
-                ) { target ->
                     Icon(
-                        painter = painterResource(id = if (!target) R.drawable.ic_search else R.drawable.ic_arr_back),
+                        painter = painterResource(id = if (!searchState.value) R.drawable.ic_search else R.drawable.ic_arr_back),
                         contentDescription = null,
                         Modifier
                             .size(40.dp)
                             .clickable(
-                                enabled = target,
+                                enabled = searchState.value,
                                 interactionSource = MutableInteractionSource(),
                                 indication = null
                             ) {
@@ -441,7 +449,6 @@ fun SearchField(searchState: MutableState<Boolean>) {
                             }
                             .padding(8.dp)
                     )
-                }
                 TextField(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -451,6 +458,7 @@ fun SearchField(searchState: MutableState<Boolean>) {
                     value = text,
                     onValueChange = {
                         text = it
+                        searchList.value = viewModel.findWithPrefix(text)
                     },
                     maxLines = 1,
                     textStyle = TextStyle(
@@ -494,7 +502,7 @@ fun SearchField(searchState: MutableState<Boolean>) {
 }
 
 @Composable
-fun BottomPart(openSheet: () -> Unit, title: String) {
+fun BottomPart(openSheet: () -> Unit, title: String, recommendedCourses: List<Course>) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -540,8 +548,6 @@ fun BottomPart(openSheet: () -> Unit, title: String) {
                 )
             }
 
-            val numbers = (0..4).toList()
-
             LazyVerticalGrid(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -552,8 +558,8 @@ fun BottomPart(openSheet: () -> Unit, title: String) {
                 contentPadding = PaddingValues(vertical = 2.dp)
 
             ) {
-                items(numbers.size) {
-                    SmallCourseItem()
+                items(recommendedCourses.size) {
+                    SmallCourseItem(recommendedCourses[it])
                 }
             }
 

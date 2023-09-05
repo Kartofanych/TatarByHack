@@ -45,7 +45,6 @@ class NavigationFragment : Fragment() {
         val navController = navHostFragment.findNavController()
 
         binding.navView.setupWithNavController(navController)
-        viewModel.start()
 
 
     }

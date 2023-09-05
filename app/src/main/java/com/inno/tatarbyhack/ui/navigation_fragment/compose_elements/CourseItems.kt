@@ -142,11 +142,8 @@ fun CourseItem(item: Course) {
     }
 }
 
-@Preview
 @Composable
-fun SmallCourseItem(
-    //courseItem
-) {
+fun SmallCourseItem(course: Course) {
     Box(
         modifier = Modifier
             .height(72.dp)
@@ -172,7 +169,7 @@ fun SmallCourseItem(
                     Text(
                         modifier = Modifier
                             .padding(bottom = 4.dp),
-                        text = "Python",
+                        text = course.courseName,
                         style = TextStyle(
                             fontSize = 14.sp,
                             fontFamily = semibold,
@@ -190,14 +187,15 @@ fun SmallCourseItem(
                         )
                 }
 
-//                Text(
-//                    text = "Айнур Г.",
-//                    style = TextStyle(
-//                        fontSize = 11.sp,
-//                        fontFamily = medium,
-//                        color = Color(0xFF0E0025)
-//                    )
-//                )
+                Text(
+                    text = course.authorName.split(" ")[0]+" "+course.authorName.split(" ")[0].toCharArray()[0]+".",
+                    style = TextStyle(
+                        fontSize = 11.sp,
+                        fontFamily = medium,
+                        color = Color(0xFF0E0025)
+                    ),
+                    maxLines = 1
+                )
                 Text(
                     text = "12 дәрес",
                     style = TextStyle(
@@ -212,10 +210,10 @@ fun SmallCourseItem(
                     .fillMaxSize()
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.ic_course_ex),
+                    painter = rememberAsyncImagePainter(course.photoLink),
                     contentDescription = null,
                     modifier = Modifier
-                        .size(37.dp)
+                        .size(40.dp)
                         .align(Alignment.Center),
                 )
             }
@@ -224,11 +222,8 @@ fun SmallCourseItem(
 }
 
 
-@Preview
 @Composable
-fun SearchCourseItem(
-    //courseItem
-) {
+fun SearchCourseItem(course: Course) {
     Card(
         elevation = CardDefaults.cardElevation(
             defaultElevation = 6.dp
@@ -258,7 +253,7 @@ fun SearchCourseItem(
                         Text(
                             modifier = Modifier
                                 .padding(bottom = 4.dp),
-                            text = "Python",
+                            text = course.courseName,
                             style = TextStyle(
                                 fontSize = 15.sp,
                                 fontFamily = semibold,
@@ -277,7 +272,7 @@ fun SearchCourseItem(
                     }
 
                     Text(
-                        text = "Галиев Ирек",
+                        text = course.authorName,
                         style = TextStyle(
                             fontSize = 13.sp,
                             fontFamily = medium,
@@ -297,7 +292,7 @@ fun SearchCourseItem(
                     )
                 }
                 Image(
-                    painter = painterResource(id = R.drawable.ic_course_ex),
+                    painter = rememberAsyncImagePainter(course.photoLink),
                     contentDescription = null,
                     modifier = Modifier
                         .size(50.dp)
