@@ -1,4 +1,5 @@
 plugins {
+    id ("kotlin-kapt")
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id ("androidx.navigation.safeargs")
@@ -94,4 +95,14 @@ dependencies {
     implementation ("com.google.accompanist:accompanist-systemuicontroller:0.30.1")
 
     implementation("io.coil-kt:coil-compose:2.2.0")
+
+
+    //Room
+    implementation ("androidx.room:room-runtime:2.5.2")
+    kapt ("androidx.room:room-compiler:2.5.2")
+    implementation ("androidx.room:room-ktx:2.5.2")
+    androidTestImplementation ("androidx.room:room-testing:2.5.2")
+
+    //gson
+    implementation("com.google.code.gson:gson:2.10.1")
 }

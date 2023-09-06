@@ -57,12 +57,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.inno.tatarbyhack.App
 import com.inno.tatarbyhack.R
 import com.inno.tatarbyhack.ui.navigation_fragment.compose_elements.MultiSelector
+import com.inno.tatarbyhack.ui.navigation_fragment.courses.CoursesViewModel
 import com.inno.tatarbyhack.ui.theme.TatarByHackTheme
 import com.inno.tatarbyhack.ui.theme.TatarTheme
 import com.inno.tatarbyhack.ui.theme.bold
 import com.inno.tatarbyhack.ui.theme.semibold
+import com.inno.tatarbyhack.utils.viewModelFactory
 
 class AccountFragment : Fragment() {
 
@@ -78,6 +82,7 @@ class AccountFragment : Fragment() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
+
                     val window = (context as Activity).window
                     WindowCompat.getInsetsController(window, this).isAppearanceLightStatusBars =
                         true

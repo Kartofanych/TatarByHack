@@ -91,8 +91,7 @@ import com.inno.tatarbyhack.ui.theme.semibold
 import com.inno.tatarbyhack.utils.viewModelFactory
 import kotlinx.coroutines.launch
 
-class CoursesFragment: Fragment() {
-
+class CoursesFragment : Fragment() {
 
 
     override fun onCreateView(
@@ -104,7 +103,7 @@ class CoursesFragment: Fragment() {
                 //download
                 val viewModel = viewModel<CoursesViewModel>(
                     factory = viewModelFactory {
-                        CoursesViewModel(App.appModule.repository)
+                        CoursesViewModel(App.appModule.coursesRepository)
                     }
                 )
                 CoursesPage(
@@ -434,21 +433,21 @@ fun SearchField(
                     .padding(horizontal = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                    Icon(
-                        painter = painterResource(id = if (!searchState.value) R.drawable.ic_search else R.drawable.ic_arr_back),
-                        contentDescription = null,
-                        Modifier
-                            .size(40.dp)
-                            .clickable(
-                                enabled = searchState.value,
-                                interactionSource = MutableInteractionSource(),
-                                indication = null
-                            ) {
-                                searchState.value = false
-                                focusManager.clearFocus()
-                            }
-                            .padding(8.dp)
-                    )
+                Icon(
+                    painter = painterResource(id = if (!searchState.value) R.drawable.ic_search else R.drawable.ic_arr_back),
+                    contentDescription = null,
+                    Modifier
+                        .size(40.dp)
+                        .clickable(
+                            enabled = searchState.value,
+                            interactionSource = MutableInteractionSource(),
+                            indication = null
+                        ) {
+                            searchState.value = false
+                            focusManager.clearFocus()
+                        }
+                        .padding(8.dp)
+                )
                 TextField(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -493,8 +492,7 @@ fun SearchField(
                         disabledIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
                     ),
-
-                    )
+                )
             }
         }
     }
@@ -515,37 +513,50 @@ fun BottomPart(openSheet: () -> Unit, title: String, recommendedCourses: List<Co
         )
 
         Column {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        bottom = 10.dp
+            Box(modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    openSheet()
+                }) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+
+                        .padding(
+                            horizontal = 20.dp,
+                            vertical = 25.dp
+                        ),
+
+                    ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_burger_menu),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .padding(end = 10.dp)
+                            .size(30.dp),
+                        tint = TatarTheme.colors.backSecondary
                     )
-                    .clickable {
-                        openSheet()
-                    }
-                    .padding(
-                        horizontal = 20.dp,
-                        vertical = 20.dp
+                    Text(
+                        text = title,
+                        style = TextStyle(
+                            fontSize = 20.sp,
+                            fontFamily = semibold,
+                            color = TatarTheme.colors.colorWhite
+                        ),
+                        modifier = Modifier,
                     )
 
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_burger_menu),
+                }
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_arr_menu),
                     contentDescription = null,
                     modifier = Modifier
+                        .align(Alignment.CenterEnd)
                         .padding(end = 10.dp)
-                        .size(30.dp)
-                )
-                Text(
-                    text = title,
-                    style = TextStyle(
-                        fontSize = 20.sp,
-                        fontFamily = semibold,
-                        color = TatarTheme.colors.colorWhite
+                        .size(24.dp),
+                    tint = TatarTheme.colors.backSecondary,
+
                     )
-                )
             }
 
             LazyVerticalGrid(

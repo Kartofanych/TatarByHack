@@ -1,17 +1,16 @@
 package com.inno.tatarbyhack.ui.navigation_fragment.courses
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.inno.tatarbyhack.domain.models.Course
-import com.inno.tatarbyhack.domain.repository.Repository
+import com.inno.tatarbyhack.domain.repository.CoursesRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class CoursesViewModel(
-    private val repository: Repository
+    private val coursesRepository: CoursesRepository
 ) : ViewModel() {
     private val popularCoursesFlow = MutableStateFlow(listOf<Course>())
     val popularCourses = popularCoursesFlow.asStateFlow()
@@ -38,7 +37,7 @@ class CoursesViewModel(
 
     private fun getAllCourses() {
         viewModelScope.launch(Dispatchers.IO) {
-            allCourses = repository.getAllCourses()
+            allCourses = coursesRepository.getAllCourses()
         }
     }
 
@@ -52,13 +51,13 @@ class CoursesViewModel(
 
     private fun getPopularCourses() {
         viewModelScope.launch(Dispatchers.IO) {
-            popularCoursesFlow.emit(repository.getLocalPopular())
+            popularCoursesFlow.emit(coursesRepository.getLocalPopular())
         }
     }
 
     private fun getRecommendedCourses() {
         viewModelScope.launch(Dispatchers.IO) {
-            recommendedCoursesFlow.emit(repository.getLocalRecommended())
+            recommendedCoursesFlow.emit(coursesRepository.getLocalRecommended())
         }
     }
 }

@@ -1,13 +1,13 @@
-package com.inno.tatarbyhack.data
+package com.inno.tatarbyhack.data.repositories
 
 import com.inno.tatarbyhack.domain.models.Course
-import com.inno.tatarbyhack.domain.repository.Repository
+import com.inno.tatarbyhack.domain.repository.CoursesRepository
 
-class RepositoryImpl : Repository {
+class CoursesRepositoryImpl : CoursesRepository {
 
     private var allCourses = listOf(
         Course(
-            1,
+            "1",
             "C++",
             "https://w7.pngwing.com/pngs/646/751/png-transparent-the-c-programming-language-computer-programming-programmer-others-blue-class-logo.png",
             "С++ крутой язык программирования, этот курс тоже крутой",
@@ -15,7 +15,7 @@ class RepositoryImpl : Repository {
             arrayListOf()
         ),
         Course(
-            2,
+            "2",
             "Python",
             "https://w7.pngwing.com/pngs/735/881/png-transparent-python-computer-icons-graphical-user-interface-python-stickers-angle-text-logo.png",
             "Python крутой язык программирования, этот курс тоже крутой",
@@ -23,7 +23,7 @@ class RepositoryImpl : Repository {
             arrayListOf()
         ),
         Course(
-            3,
+            "3",
             "Kotlin",
             "https://download.logo.wine/logo/Kotlin_(programming_language)/Kotlin_(programming_language)-Logo.wine.png",
             "Kotlin крутой язык программирования, этот курс тоже крутой",
@@ -59,7 +59,7 @@ class RepositoryImpl : Repository {
         return arrayOf(
             listOf(
                 Course(
-                    1,
+                    "1",
                     "C++",
                     "https://w7.pngwing.com/pngs/646/751/png-transparent-the-c-programming-language-computer-programming-programmer-others-blue-class-logo.png",
                     "С++ крутой язык программирования, этот курс тоже крутой",
@@ -67,7 +67,7 @@ class RepositoryImpl : Repository {
                     arrayListOf()
                 ),
                 Course(
-                    2,
+                    "2",
                     "Python",
                     "https://w7.pngwing.com/pngs/735/881/png-transparent-python-computer-icons-graphical-user-interface-python-stickers-angle-text-logo.png",
                     "Python крутой язык программирования, этот курс тоже крутой",
@@ -75,7 +75,7 @@ class RepositoryImpl : Repository {
                     arrayListOf()
                 ),
                 Course(
-                    3,
+                    "3",
                     "Kotlin",
                     "https://download.logo.wine/logo/Kotlin_(programming_language)/Kotlin_(programming_language)-Logo.wine.png",
                     "Kotlin крутой язык программирования, этот курс тоже крутой",
@@ -85,7 +85,7 @@ class RepositoryImpl : Repository {
             ),
             listOf(
                 Course(
-                    2,
+                    "2",
                     "Python",
                     "https://w7.pngwing.com/pngs/735/881/png-transparent-python-computer-icons-graphical-user-interface-python-stickers-angle-text-logo.png",
                     "Python крутой язык программирования, этот курс тоже крутой",
@@ -93,7 +93,7 @@ class RepositoryImpl : Repository {
                     arrayListOf()
                 ),
                 Course(
-                    1,
+                    "1",
                     "C++",
                     "https://w7.pngwing.com/pngs/646/751/png-transparent-the-c-programming-language-computer-programming-programmer-others-blue-class-logo.png",
                     "С++ крутой язык программирования, этот курс тоже крутой",
@@ -101,7 +101,7 @@ class RepositoryImpl : Repository {
                     arrayListOf()
                 ),
                 Course(
-                    3,
+                    "3",
                     "Kotlin",
                     "https://download.logo.wine/logo/Kotlin_(programming_language)/Kotlin_(programming_language)-Logo.wine.png",
                     "Kotlin крутой язык программирования, этот курс тоже крутой",
@@ -111,7 +111,7 @@ class RepositoryImpl : Repository {
             ),
             listOf(
                 Course(
-                    3,
+                    "3",
                     "Kotlin",
                     "https://download.logo.wine/logo/Kotlin_(programming_language)/Kotlin_(programming_language)-Logo.wine.png",
                     "Kotlin крутой язык программирования, этот курс тоже крутой",
@@ -119,7 +119,7 @@ class RepositoryImpl : Repository {
                     arrayListOf()
                 ),
                 Course(
-                    2,
+                    "2",
                     "Python",
                     "https://w7.pngwing.com/pngs/735/881/png-transparent-python-computer-icons-graphical-user-interface-python-stickers-angle-text-logo.png",
                     "Python крутой язык программирования, этот курс тоже крутой",
@@ -127,7 +127,7 @@ class RepositoryImpl : Repository {
                     arrayListOf()
                 ),
                 Course(
-                    1,
+                    "1",
                     "C++",
                     "https://w7.pngwing.com/pngs/646/751/png-transparent-the-c-programming-language-computer-programming-programmer-others-blue-class-logo.png",
                     "С++ крутой язык программирования, этот курс тоже крутой",

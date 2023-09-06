@@ -2,7 +2,7 @@ package com.inno.tatarbyhack.domain.repository
 
 import com.inno.tatarbyhack.domain.models.Course
 
-interface Repository {
+interface CoursesRepository {
     fun getAllCourses(): List<Course>
     suspend fun getLocalPopular(): List<Course>
     suspend fun getPopularCourses()
