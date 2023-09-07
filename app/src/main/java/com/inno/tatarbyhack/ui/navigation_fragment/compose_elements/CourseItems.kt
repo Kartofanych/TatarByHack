@@ -1,5 +1,7 @@
 package com.inno.tatarbyhack.ui.navigation_fragment.compose_elements
 
+import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -26,12 +28,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.inno.tatarbyhack.R
 import com.inno.tatarbyhack.domain.models.Course
@@ -94,7 +98,7 @@ fun CourseItem(item: Course) {
 
                     ) {
                     Text(
-                        text = item.authorName.split(" ")[0]+" "+item.authorName.split(" ")[0].toCharArray()[0]+".",
+                        text = item.authorName.split(" ")[0] + " " + item.authorName.split(" ")[0].toCharArray()[0] + ".",
                         style = TextStyle(
                             fontSize = 11.sp,
                             fontFamily = semibold,
@@ -188,7 +192,7 @@ fun SmallCourseItem(course: Course) {
                 }
 
                 Text(
-                    text = course.authorName.split(" ")[0]+" "+course.authorName.split(" ")[0].toCharArray()[0]+".",
+                    text = course.authorName.split(" ")[0] + " " + course.authorName.split(" ")[0].toCharArray()[0] + ".",
                     style = TextStyle(
                         fontSize = 11.sp,
                         fontFamily = medium,
@@ -298,6 +302,114 @@ fun SearchCourseItem(course: Course) {
                         .size(50.dp)
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun MyCourseItem(course: Course, onClick: (String) -> Unit) {
+    Card(
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 6.dp
+        )
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(14.dp))
+                .background(Color.White)
+                .clickable {
+                    onClick(course.id)
+                }
+                .padding(horizontal = 10.dp, vertical = 20.dp)
+        ) {
+            Row(
+                modifier = Modifier,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                AsyncImage(
+                    model = if (course.photoLink.isEmpty()) {
+                        R.drawable.ic_add_image
+                    } else {
+                        Uri.parse(course.photoLink)
+                    },
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .padding(end = 20.dp)
+                        .size(50.dp)
+                        .clip(RoundedCornerShape(5.dp))
+                )
+
+                Column(
+                    modifier = Modifier,
+                    verticalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Box {
+                        Text(
+                            modifier = Modifier
+                                .padding(bottom = 4.dp),
+                            text = course.courseName,
+                            style = TextStyle(
+                                fontSize = 19.sp,
+                                fontFamily = semibold,
+                                color = TatarTheme.colors.labelPrimary
+                            ),
+                        )
+                        Spacer(
+                            modifier = Modifier
+                                .height(2.dp)
+                                .width(30.dp)
+                                .background(TatarTheme.colors.backSecondary)
+                                .align(Alignment.BottomStart),
+
+                            )
+                    }
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "12 дәрес",
+                            style = TextStyle(
+                                fontSize = 13.sp,
+                                fontFamily = medium,
+                                color = Color(0xFFA7A7A7)
+                            ),
+                            modifier = Modifier
+                                .padding(vertical = 5.dp)
+
+                        )
+                        Spacer(
+                            modifier = Modifier
+                                .padding(horizontal = 5.dp)
+                                .height(20.dp)
+                                .width(1.dp)
+                                .background(TatarTheme.colors.colorRed),
+
+                            )
+                        Text(
+                            text = "эштә",
+                            style = TextStyle(
+                                fontSize = 11.sp,
+                                fontFamily = medium,
+                                color = TatarTheme.colors.colorRed
+                            )
+                        )
+
+                    }
+
+                }
+
+            }
+            Image(
+                painter = painterResource(id = R.drawable.ic_course_settings),
+                contentDescription = null,
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .size(35.dp)
+            )
         }
     }
 }

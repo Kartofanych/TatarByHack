@@ -7,4 +7,6 @@ data class Course(
     val desc: String,
     val authorName: String,
     val modules: List<Module>
-)
+){
+    constructor(): this("", "", "", "", "", listOf())
+}

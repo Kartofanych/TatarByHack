@@ -23,6 +23,15 @@
             app:enterAnim="@anim/slide_in_right"
             android:id="@+id/action_start"
             app:destination="@id/lesson_fragment" />
+
+        <action
+            android:id="@+id/action_my_course_fragment"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:enterAnim="@anim/slide_in_right"
+            app:destination="@id/my_course_fragment"
+            />
+
+
     </fragment>
 
     <fragment
@@ -63,6 +72,23 @@
             app:exitAnim="@anim/slide_in_right"
             android:id="@+id/back_lesson"
             app:popUpTo="@id/lesson_fragment"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/my_course_fragment"
+        android:name="com.inno.tatarbyhack.ui.constructor.MyCourseFragment"
+        android:label="my_course_fragment" >
+        <argument
+            android:name="id"
+            android:defaultValue="some_id"
+            app:argType="string"
+            />
+        <action
+            android:id="@+id/back"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_in_right"
+            app:popUpTo="@id/navigation_fragment"/>
     </fragment>
 
 

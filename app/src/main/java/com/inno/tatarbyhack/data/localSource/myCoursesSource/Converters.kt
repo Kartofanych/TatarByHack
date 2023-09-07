@@ -10,10 +10,11 @@ class Converters {
     fun moduleListToJsonString(value: List<Module>): String = Gson().toJson(value)
 
     @TypeConverter
-    fun jsonStringToModuleList(value: String) = Gson().fromJson(value, Array<Module>::class.java).toList()
+    fun jsonStringToModuleList(value: String) =
+        Gson().fromJson(value, Array<Module>::class.java).toList()
 }
 
-fun CourseEntity.toCourse():Course{
+fun CourseEntity.toCourse(): Course {
     return Course(
         id = this.id,
         courseName = this.name,

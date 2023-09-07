@@ -1,5 +1,6 @@
 package com.inno.tatarbyhack.domain.models
 
 data class Module(
-    val name : String
+    val name : String,
+    val lessons: List<Lesson>
 )

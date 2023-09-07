@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -61,11 +62,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.inno.tatarbyhack.App
 import com.inno.tatarbyhack.R
 import com.inno.tatarbyhack.domain.models.Course
+import com.inno.tatarbyhack.ui.navigation_fragment.NavigationFragmentDirections
+import com.inno.tatarbyhack.ui.navigation_fragment.compose_elements.MyCourseItem
 import com.inno.tatarbyhack.ui.navigation_fragment.compose_elements.SearchCourseItem
 import com.inno.tatarbyhack.ui.theme.TatarByHackTheme
 import com.inno.tatarbyhack.ui.theme.TatarTheme
 import com.inno.tatarbyhack.ui.theme.medium
 import com.inno.tatarbyhack.ui.theme.semibold
+import com.inno.tatarbyhack.utils.findTopNavController
 import com.inno.tatarbyhack.utils.viewModelFactory
 import kotlinx.coroutines.launch
 
@@ -94,7 +98,11 @@ class ConstructorFragment : Fragment() {
 
                     ConstructorPage(
                         viewModel
-                    )
+                    ) { id ->
+                        val action = NavigationFragmentDirections.actionMyCourseFragment()
+                        action.id = id
+                        findTopNavController().navigate(action)
+                    }
 
 
                 }
@@ -106,7 +114,7 @@ class ConstructorFragment : Fragment() {
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ConstructorPage(viewModel: ConstructorViewModel) {
+fun ConstructorPage(viewModel: ConstructorViewModel, onCourseClicked: (String)->Unit) {
 
     val sheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
@@ -151,7 +159,7 @@ fun ConstructorPage(viewModel: ConstructorViewModel) {
                         sheetState.show()
                     }
                 }
-                ListCourses(courses.value)
+                ListCourses(courses.value, onCourseClicked)
             }
 
         }
@@ -161,7 +169,7 @@ fun ConstructorPage(viewModel: ConstructorViewModel) {
 }
 
 @Composable
-fun ListCourses(courses: List<Course>) {
+fun ListCourses(courses: List<Course>, onCourseClicked: (String)->Unit) {
     LazyColumn(
         modifier = Modifier
             .padding(horizontal = 10.dp)
@@ -171,7 +179,8 @@ fun ListCourses(courses: List<Course>) {
 
     ) {
         itemsIndexed(courses) { index, item ->
-            SearchCourseItem(course = item)
+            MyCourseItem(course = item, onCourseClicked)
+            Spacer(modifier = Modifier.height(15.dp))
         }
     }
 }
