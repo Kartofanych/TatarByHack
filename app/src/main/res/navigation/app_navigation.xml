@@ -2,7 +2,7 @@
 <navigation xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/main_navigation"
-    app:startDestination="@id/greeting_fragment"
+    app:startDestination="@id/navigation_fragment"
     >
     <fragment
         android:id="@+id/greeting_fragment"
@@ -12,8 +12,21 @@
             app:popEnterAnim="@anim/slide_in_left"
             app:enterAnim="@anim/slide_in_right"
             android:id="@+id/action_start"
+            app:destination="@id/login_fragment" />
+    </fragment>
+
+
+    <fragment
+        android:id="@+id/login_fragment"
+        android:name="com.inno.tatarbyhack.ui.login.LoginFragment"
+        android:label="greetingFragment" >
+        <action
+            app:popEnterAnim="@anim/slide_in_left"
+            app:enterAnim="@anim/slide_in_right"
+            android:id="@+id/action_start"
             app:destination="@id/navigation_fragment" />
     </fragment>
+
     <fragment
         android:id="@+id/navigation_fragment"
         android:name="com.inno.tatarbyhack.ui.navigation_fragment.NavigationFragment"
@@ -30,7 +43,19 @@
             app:enterAnim="@anim/slide_in_right"
             app:destination="@id/my_course_fragment"
             />
+        <action
+            android:id="@+id/action_course_fragment"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:enterAnim="@anim/slide_in_right"
+            app:destination="@id/course_fragment"
+            />
 
+
+        <action
+            app:popEnterAnim="@anim/slide_in_left"
+            app:enterAnim="@anim/slide_in_right"
+            android:id="@+id/action_player"
+            app:destination="@id/player_fragment"/>
 
     </fragment>
 
@@ -39,19 +64,25 @@
         android:name="com.inno.tatarbyhack.ui.lesson.LessonFragment"
         android:label="lessonFragment" >
         <argument
-            android:name="lessonId"
-            android:defaultValue="1"
-            app:argType="integer"
-            />
-        <argument
             android:name="courseId"
             android:defaultValue="1"
-            app:argType="integer"
+            app:argType="string"
             />
+        <argument
+            android:name="moduleId"
+            android:defaultValue="1"
+            app:argType="string"
+            />
+        <argument
+            android:name="lessonId"
+            android:defaultValue="1"
+            app:argType="string"
+            />
+
         <action
             app:popEnterAnim="@anim/slide_in_left"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_in_right"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_in_left"
             android:id="@+id/action_player"
             app:destination="@id/player_fragment"/>
     </fragment>
@@ -62,16 +93,20 @@
         android:name="com.inno.tatarbyhack.ui.player.PlayerFragment"
         android:label="lessonFragment" >
         <argument
+            android:name="title"
+            android:defaultValue="some_title"
+            app:argType="string"
+            />
+        <argument
+            android:name="subtitle"
+            android:defaultValue="some_subtitle"
+            app:argType="string"
+            />
+        <argument
             android:name="url"
             android:defaultValue="some_url"
             app:argType="string"
             />
-        <action
-            app:popEnterAnim="@anim/slide_in_left"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_in_right"
-            android:id="@+id/back_lesson"
-            app:popUpTo="@id/lesson_fragment"/>
     </fragment>
 
     <fragment
@@ -83,12 +118,23 @@
             android:defaultValue="some_id"
             app:argType="string"
             />
+    </fragment>
+
+    <fragment
+        android:id="@+id/course_fragment"
+        android:name="com.inno.tatarbyhack.ui.course_page.CoursePageFragment"
+        android:label="course_fragment" >
+        <argument
+            android:name="id"
+            android:defaultValue="some_id"
+            app:argType="string"
+            />
+
         <action
-            android:id="@+id/back"
+            android:id="@+id/lesson_action"
             app:popEnterAnim="@anim/slide_in_left"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_in_right"
-            app:popUpTo="@id/navigation_fragment"/>
+            app:enterAnim="@anim/slide_in_right"
+            app:destination="@id/lesson_fragment"/>
     </fragment>
 
 

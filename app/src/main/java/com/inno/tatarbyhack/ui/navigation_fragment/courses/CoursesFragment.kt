@@ -82,12 +82,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.inno.tatarbyhack.App
 import com.inno.tatarbyhack.R
 import com.inno.tatarbyhack.domain.models.Course
+import com.inno.tatarbyhack.ui.navigation_fragment.NavigationFragmentDirections
 import com.inno.tatarbyhack.ui.navigation_fragment.compose_elements.CourseItem
 import com.inno.tatarbyhack.ui.navigation_fragment.compose_elements.SearchCourseItem
 import com.inno.tatarbyhack.ui.navigation_fragment.compose_elements.SmallCourseItem
 import com.inno.tatarbyhack.ui.theme.TatarByHackTheme
 import com.inno.tatarbyhack.ui.theme.TatarTheme
 import com.inno.tatarbyhack.ui.theme.semibold
+import com.inno.tatarbyhack.utils.findTopNavController
 import com.inno.tatarbyhack.utils.viewModelFactory
 import kotlinx.coroutines.launch
 
@@ -106,10 +108,15 @@ class CoursesFragment : Fragment() {
                         CoursesViewModel(App.appModule.coursesRepository)
                     }
                 )
+                viewModel.start()
                 CoursesPage(
                     viewModel,
                     this
-                )
+                ) { id ->
+                    val action = NavigationFragmentDirections.actionCourseFragment()
+                    action.id = id
+                    findTopNavController().navigate(action)
+                }
             }
         }
     }
@@ -119,7 +126,7 @@ class CoursesFragment : Fragment() {
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
 @Composable
-fun CoursesPage(viewModel: CoursesViewModel, composeView: ComposeView) {
+fun CoursesPage(viewModel: CoursesViewModel, composeView: ComposeView, moveToCourse: (String) -> Unit) {
 
     val localContext = LocalContext.current
     val window = (localContext as Activity).window
@@ -212,7 +219,7 @@ fun CoursesPage(viewModel: CoursesViewModel, composeView: ComposeView) {
                         enter = slideInHorizontally(initialOffsetX = { it + it / 2 }),
                         exit = slideOutHorizontally(targetOffsetX = { it + it / 2 })
                     ) {
-                        SearchItems(searchList)
+                        SearchItems(searchList, moveToCourse)
                     }
 
 
@@ -226,7 +233,7 @@ fun CoursesPage(viewModel: CoursesViewModel, composeView: ComposeView) {
                             Modifier.fillMaxSize()
                         ) {
 
-                            TopPart(viewModel)
+                            TopPart(viewModel, moveToCourse)
 
                             Spacer(
                                 modifier = Modifier
@@ -242,7 +249,8 @@ fun CoursesPage(viewModel: CoursesViewModel, composeView: ComposeView) {
                                     }
                                 },
                                 title = recommendedCoursesTitles[currRecommendedCourse.value],
-                                recommendedCourses = recommendedCourses.value[currRecommendedCourse.value]
+                                recommendedCourses = recommendedCourses.value[currRecommendedCourse.value],
+                                moveToCourse = moveToCourse
                             )
                         }
                     }
@@ -254,9 +262,9 @@ fun CoursesPage(viewModel: CoursesViewModel, composeView: ComposeView) {
 }
 
 @Composable
-fun TopPart(viewModel: CoursesViewModel) {
+fun TopPart(viewModel: CoursesViewModel, moveToCourse: (String) -> Unit) {
 
-    val items = listOf("1", "2", "3", "4")
+    val items = viewModel.popularCourses.collectAsState()
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -283,15 +291,15 @@ fun TopPart(viewModel: CoursesViewModel) {
             state = rememberLazyListState(),
 
             ) {
-            itemsIndexed(viewModel.popularCourses.value) { index, item ->
-                CourseItem(item)
+            itemsIndexed(items.value) { index, item ->
+                CourseItem(item, moveToCourse)
             }
         }
     }
 }
 
 @Composable
-fun SearchItems(searchList: MutableState<List<Course>>) {
+fun SearchItems(searchList: MutableState<List<Course>>, moveToCourse: (String) -> Unit) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -303,7 +311,7 @@ fun SearchItems(searchList: MutableState<List<Course>>) {
 
     ) {
         itemsIndexed(searchList.value) { index, item ->
-            SearchCourseItem(item)
+            SearchCourseItem(item, moveToCourse)
         }
     }
 }
@@ -319,7 +327,7 @@ fun BottomSheetContent(
     Surface(
         modifier = Modifier
             .clip(shape = RoundedCornerShape(15.dp, 15.dp, 0.dp, 0.dp)),
-        color = Color(0xFF1A1A47)
+        color = Color(0xFF9D80D7)
     ) {
         Column(
             modifier = Modifier
@@ -457,7 +465,8 @@ fun SearchField(
                     value = text,
                     onValueChange = {
                         text = it
-                        searchList.value = viewModel.findWithPrefix(text)
+                        searchList.value = listOf()
+                        viewModel.findWithPrefix(text)
                     },
                     maxLines = 1,
                     textStyle = TextStyle(
@@ -500,7 +509,7 @@ fun SearchField(
 }
 
 @Composable
-fun BottomPart(openSheet: () -> Unit, title: String, recommendedCourses: List<Course>) {
+fun BottomPart(openSheet: () -> Unit, title: String, recommendedCourses: List<Course>, moveToCourse: (String) -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -570,7 +579,7 @@ fun BottomPart(openSheet: () -> Unit, title: String, recommendedCourses: List<Co
 
             ) {
                 items(recommendedCourses.size) {
-                    SmallCourseItem(recommendedCourses[it])
+                    SmallCourseItem(recommendedCourses[it], moveToCourse)
                 }
             }
 

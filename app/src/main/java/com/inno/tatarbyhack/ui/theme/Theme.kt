@@ -98,15 +98,15 @@ private val DarkColorScheme = YandexTodoColors(
     labelTertiary = Gray,
     labelDisable = Gray,
     colorRed = Color.Red,
-    colorGreen = Color.Green,
-    colorBlue = Color.Blue,
+    colorGreen = Green,
+    colorBlue = Blue,
     colorOrange = Orange,
     colorGray = Gray,
     colorNavItems = NavGray,
     colorWhite = White,
     backPrimary = Purple,
     backSecondary = DarkPurple,
-    backElevated = White,
+    backElevated = LightPurple,
 )
 
 
@@ -118,7 +118,7 @@ private val LightColorScheme = YandexTodoColors(
     labelTertiary = Gray,
     labelDisable = Gray,
     colorRed = Color.Red,
-    colorGreen = Color.Green,
+    colorGreen = Green,
     colorBlue = Blue,
     colorOrange = Orange,
     colorGray = Gray,

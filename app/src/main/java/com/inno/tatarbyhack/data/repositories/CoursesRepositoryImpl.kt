@@ -1,144 +1,64 @@
 package com.inno.tatarbyhack.data.repositories
 
+import android.util.Log
+import com.inno.tatarbyhack.data.localSource.cousesSource.PopularCoursesDao
+import com.inno.tatarbyhack.data.localSource.cousesSource.toCourse
+import com.inno.tatarbyhack.data.localSource.cousesSource.toPopularCoursesEntity
+import com.inno.tatarbyhack.data.remoteSource.api.RetrofitService
+import com.inno.tatarbyhack.data.remoteSource.entities.toCourse
 import com.inno.tatarbyhack.domain.models.Course
+import com.inno.tatarbyhack.domain.models.Lesson
+import com.inno.tatarbyhack.domain.models.Module
 import com.inno.tatarbyhack.domain.repository.CoursesRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
-class CoursesRepositoryImpl : CoursesRepository {
-
-    private var allCourses = listOf(
-        Course(
-            "1",
-            "C++",
-            "https://w7.pngwing.com/pngs/646/751/png-transparent-the-c-programming-language-computer-programming-programmer-others-blue-class-logo.png",
-            "С++ крутой язык программирования, этот курс тоже крутой",
-            "Галиев Ирек",
-            arrayListOf()
-        ),
-        Course(
-            "2",
-            "Python",
-            "https://w7.pngwing.com/pngs/735/881/png-transparent-python-computer-icons-graphical-user-interface-python-stickers-angle-text-logo.png",
-            "Python крутой язык программирования, этот курс тоже крутой",
-            "Сальников Егор",
-            arrayListOf()
-        ),
-        Course(
-            "3",
-            "Kotlin",
-            "https://download.logo.wine/logo/Kotlin_(programming_language)/Kotlin_(programming_language)-Logo.wine.png",
-            "Kotlin крутой язык программирования, этот курс тоже крутой",
-            "Насыбуллин Карим",
-            arrayListOf()
-        )
-    )
+class CoursesRepositoryImpl(
+    private val dao: PopularCoursesDao,
+    private val service: RetrofitService
+) : CoursesRepository {
 
 
 
+    override fun getCourse(id: String): Course {
+        return dao.getCourse(id).toCourse()
+    }
 
-    override fun getAllCourses(): List<Course> {
-        return allCourses
+    override suspend fun searchWithPrefix(prefix: String): List<Course> {
+        val result = service.searchCourse(prefix)
+        return result.map { it.toCourse() }
     }
 
 
-    override suspend fun getLocalPopular(): List<Course> {
-        getPopularCourses()
-        return allCourses
-//                dao.getAllFlow().collect { list ->
-//                    emit(UiState.Success(list.map { it.toItem() }))
-//                }
-
-    }
-
-    override suspend fun getPopularCourses() {
-        //network -> if success -> change DB
+    override suspend fun getPopularCourses(): Flow<List<Course>> = flow {
+        dao.getAllFlow().collect { list ->
+            emit(list.map { it.toCourse() })
+        }
     }
 
 
-    override suspend fun getLocalRecommended(): Array<List<Course>> {
-        //request
-        return arrayOf(
-            listOf(
-                Course(
-                    "1",
-                    "C++",
-                    "https://w7.pngwing.com/pngs/646/751/png-transparent-the-c-programming-language-computer-programming-programmer-others-blue-class-logo.png",
-                    "С++ крутой язык программирования, этот курс тоже крутой",
-                    "Галиев Ирек",
-                    arrayListOf()
-                ),
-                Course(
-                    "2",
-                    "Python",
-                    "https://w7.pngwing.com/pngs/735/881/png-transparent-python-computer-icons-graphical-user-interface-python-stickers-angle-text-logo.png",
-                    "Python крутой язык программирования, этот курс тоже крутой",
-                    "Сальников Егор",
-                    arrayListOf()
-                ),
-                Course(
-                    "3",
-                    "Kotlin",
-                    "https://download.logo.wine/logo/Kotlin_(programming_language)/Kotlin_(programming_language)-Logo.wine.png",
-                    "Kotlin крутой язык программирования, этот курс тоже крутой",
-                    "Насыбуллин Карим",
-                    arrayListOf()
-                )
-            ),
-            listOf(
-                Course(
-                    "2",
-                    "Python",
-                    "https://w7.pngwing.com/pngs/735/881/png-transparent-python-computer-icons-graphical-user-interface-python-stickers-angle-text-logo.png",
-                    "Python крутой язык программирования, этот курс тоже крутой",
-                    "Сальников Егор",
-                    arrayListOf()
-                ),
-                Course(
-                    "1",
-                    "C++",
-                    "https://w7.pngwing.com/pngs/646/751/png-transparent-the-c-programming-language-computer-programming-programmer-others-blue-class-logo.png",
-                    "С++ крутой язык программирования, этот курс тоже крутой",
-                    "Галиев Ирек",
-                    arrayListOf()
-                ),
-                Course(
-                    "3",
-                    "Kotlin",
-                    "https://download.logo.wine/logo/Kotlin_(programming_language)/Kotlin_(programming_language)-Logo.wine.png",
-                    "Kotlin крутой язык программирования, этот курс тоже крутой",
-                    "Насыбуллин Карим",
-                    arrayListOf()
-                )
-            ),
-            listOf(
-                Course(
-                    "3",
-                    "Kotlin",
-                    "https://download.logo.wine/logo/Kotlin_(programming_language)/Kotlin_(programming_language)-Logo.wine.png",
-                    "Kotlin крутой язык программирования, этот курс тоже крутой",
-                    "Насыбуллин Карим",
-                    arrayListOf()
-                ),
-                Course(
-                    "2",
-                    "Python",
-                    "https://w7.pngwing.com/pngs/735/881/png-transparent-python-computer-icons-graphical-user-interface-python-stickers-angle-text-logo.png",
-                    "Python крутой язык программирования, этот курс тоже крутой",
-                    "Сальников Егор",
-                    arrayListOf()
-                ),
-                Course(
-                    "1",
-                    "C++",
-                    "https://w7.pngwing.com/pngs/646/751/png-transparent-the-c-programming-language-computer-programming-programmer-others-blue-class-logo.png",
-                    "С++ крутой язык программирования, этот курс тоже крутой",
-                    "Галиев Ирек",
-                    arrayListOf()
-                ),
-            )
-        )
+    override suspend fun getRecommendedCourses(): Flow<List<Course>> = flow {
+
     }
 
-    override suspend fun getRecommendedCourses() {
-        //network -> if success -> change DB
+    override suspend fun increaseWatches(id: String) {
+        try {
+            service.addViewToCourse(id = id)
+        } catch (exception: Exception) {
+
+        }
+    }
+
+    override suspend fun loadPopularCourses() : List<Course>? {
+        try {
+            val result = service.getPopularCourses()
+            dao.addList(result.map { it.toPopularCoursesEntity() })
+            Log.d("121212", result.size.toString())
+            return result.map { it.toCourse() }
+        } catch (exception: Exception) {
+            Log.d("121212", exception.toString())
+        }
+        Log.d("121212", "zero")
+        return null
     }
 }

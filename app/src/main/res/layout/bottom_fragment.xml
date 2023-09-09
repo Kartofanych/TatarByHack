@@ -22,7 +22,7 @@
         android:layout_height="70dp"
         android:layout_gravity="bottom"
         android:background="?android:attr/windowBackground"
-        app:menu="@menu/bottom_nav_menu"
+        app:menu="@menu/bottom_nav_teacher_menu"
         app:itemTextColor="@color/bottom_nav_colors"
         app:itemIconTint="@color/bottom_nav_colors"
         app:itemRippleColor="#4F0E77"

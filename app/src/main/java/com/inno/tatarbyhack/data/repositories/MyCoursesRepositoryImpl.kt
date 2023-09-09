@@ -1,9 +1,10 @@
 package com.inno.tatarbyhack.data.repositories
 
-import com.inno.tatarbyhack.data.localSource.myCoursesSource.CourseEntity
+import com.inno.tatarbyhack.data.localSource.myCoursesSource.MyCourseEntity
 import com.inno.tatarbyhack.data.localSource.myCoursesSource.MyCoursesDao
 import com.inno.tatarbyhack.data.localSource.myCoursesSource.toCourse
 import com.inno.tatarbyhack.domain.models.Course
+import com.inno.tatarbyhack.domain.models.Module
 import com.inno.tatarbyhack.domain.repository.MyCoursesRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -15,7 +16,7 @@ class MyCoursesRepositoryImpl(
 
 
     override suspend fun createCourse(name: String) {
-        val entity = CourseEntity(UUID.randomUUID().toString(), name, "","","Галиев Ирек", listOf())
+        val entity = MyCourseEntity(UUID.randomUUID().toString(), name, "","","Галиев Ирек", listOf())
         dao.add(entity)
     }
 
@@ -43,6 +44,20 @@ class MyCoursesRepositoryImpl(
 
     override suspend fun updateCourseDesc(id: String, desc: String) {
         dao.updateCourseItem(dao.getItem(id).copy(description = desc))
+    }
+
+    override suspend fun updateCourseModules(id: String, newModule: String) {
+        val list = dao.getItem(id).modules.toMutableList()
+        list.add(Module(UUID.randomUUID().toString(), newModule, listOf()))
+        dao.updateCourseModule(list, id)
+    }
+
+    override suspend fun updateCourseModules(id: String, i1:Int, i2:Int) {
+        val list = dao.getItem(id).modules.toMutableList()
+        val temp = list[i1]
+        list[i1] = list[i2]
+        list[i2] = temp
+        dao.updateCourseModule(list, id)
     }
 
 

@@ -2,7 +2,6 @@ package com.inno.tatarbyhack.ui.constructor
 
 import android.content.Context
 import android.net.Uri
-import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.inno.tatarbyhack.domain.models.Course
@@ -28,31 +27,6 @@ class MyCourseViewModel(
 
     private val myCourseFlow = MutableStateFlow(Course())
     val myCourse = myCourseFlow.asStateFlow()
-
-    private val modulesFlow =
-        MutableStateFlow(
-            listOf(
-                "1. Модуль 1",
-                "2. Модуль 2",
-                "3. Модуль 3",
-                "4. Модуль 4",
-                "5. Модуль 5",
-                "6. Модуль 6",
-                "7. Модуль 7",
-                "8. Модуль 8"
-            )
-        )
-    val modules = modulesFlow.asStateFlow()
-
-    fun onChange(i1:Int, i2:Int){
-        val cur = modules.value.toMutableList()
-        val temp = cur[i1]
-        cur[i1] = cur[i2]
-        cur[i2] = temp
-        viewModelScope.launch(Dispatchers.IO) {
-            modulesFlow.emit(cur)
-        }
-    }
 
     init {
         getCourse()
@@ -84,6 +58,17 @@ class MyCourseViewModel(
             repository.updateCourseDesc(id, desc)
         }
     }
+    fun updateModulesPosition(i1:Int, i2:Int){
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.updateCourseModules(id, i1, i2)
+        }
+    }
+    fun addCourseModules(newModule: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.updateCourseModules(id, newModule)
+        }
+    }
+
 
 
     private suspend fun saveImageToCache(uri: String): String {

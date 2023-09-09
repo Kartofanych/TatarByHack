@@ -3,7 +3,6 @@ package com.inno.tatarbyhack.ui.constructor
 import android.app.Activity
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,27 +12,19 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.animateScrollBy
-import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -42,12 +33,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyItemScope
-import androidx.compose.foundation.lazy.LazyListItemInfo
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -75,11 +60,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.painterResource
@@ -87,7 +69,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
 import androidx.core.view.WindowCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -97,6 +78,7 @@ import coil.compose.AsyncImage
 import com.inno.tatarbyhack.App
 import com.inno.tatarbyhack.R
 import com.inno.tatarbyhack.domain.models.Course
+import com.inno.tatarbyhack.domain.models.Module
 import com.inno.tatarbyhack.ui.navigation_fragment.compose_elements.DragDropColumn
 import com.inno.tatarbyhack.ui.theme.TatarByHackTheme
 import com.inno.tatarbyhack.ui.theme.TatarTheme
@@ -105,8 +87,6 @@ import com.inno.tatarbyhack.ui.theme.medium
 import com.inno.tatarbyhack.ui.theme.regular
 import com.inno.tatarbyhack.ui.theme.semibold
 import com.inno.tatarbyhack.utils.viewModelFactory
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 
@@ -144,13 +124,11 @@ class MyCourseFragment : Fragment() {
                         MyCoursePage(
                             viewModel,
                             back = {
-                                val action = MyCourseFragmentDirections.back()
-                                findNavController().navigate(action)
+                                findNavController().popBackStack()
                             },
                             delete = {
                                 viewModel.deleteCourse()
-                                val action = MyCourseFragmentDirections.back()
-                                findNavController().navigate(action)
+                                findNavController().popBackStack()
                             }
                         )
                     }
@@ -202,8 +180,8 @@ fun MyCoursePage(viewModel: MyCourseViewModel, back: () -> Unit, delete: () -> U
                     }
                 }
             } else {
-                BottomSheetNewModuleContent { desc ->
-                    viewModel.updateCourseDescription(desc)
+                BottomSheetNewModuleContent { newModule ->
+                    viewModel.addCourseModules(newModule)
                     scope.launch {
                         sheetState.hide()
                     }
@@ -227,18 +205,25 @@ fun MyCoursePage(viewModel: MyCourseViewModel, back: () -> Unit, delete: () -> U
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                .verticalScroll(scrollState),
+                    .verticalScroll(scrollState),
                 horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
 
                 CourseInfo(course.value, singlePhotoPickerLauncher)
 
                 CourseDescription(course.value) {
+                    sheetInformation.value = true
                     scope.launch {
                         sheetState.show()
                     }
                 }
-                ModulesPart(viewModel)
+                ModulesPart(viewModel) {
+                    sheetInformation.value = false
+                    scope.launch {
+                        sheetState.show()
+                    }
+                }
             }
 
             ToolbarMyCourse(back, delete, scrollState, course.value.courseName)
@@ -365,13 +350,13 @@ fun BottomSheetNewModuleContent(createModule: (String) -> Unit) {
 }
 
 @Composable
-fun ModulesPart(viewModel: MyCourseViewModel) {
+fun ModulesPart(viewModel: MyCourseViewModel, openSheet: () -> Unit) {
 
-    val items = viewModel.modules.collectAsState()
+    val items = viewModel.myCourse.collectAsState().value.modules
 
     Column(
         modifier = Modifier
-            .fillMaxSize()
+            .heightIn(min = 400.dp)
             .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
             .background(TatarTheme.colors.backPrimary)
     ) {
@@ -407,14 +392,21 @@ fun ModulesPart(viewModel: MyCourseViewModel) {
                 painter = painterResource(id = R.drawable.ic_add_module),
                 contentDescription = null,
                 modifier = Modifier
+                    .clip(CircleShape)
+                    .clickable {
+                        openSheet()
+                    }
+                    .padding(4.dp)
                     .size(22.dp),
                 tint = TatarTheme.colors.colorWhite
             )
 
         }
+        Box(modifier = Modifier.fillMaxSize()) {
 
-        DragDropColumn(items = items.value, onSwap = viewModel::onChange) { item ->
-            ModuleItem(item)
+            DragDropColumn(items = items, onSwap = viewModel::updateModulesPosition) { item ->
+                MyModuleItem(item)
+            }
         }
 //        Column(
 //            Modifier
@@ -788,7 +780,7 @@ fun ToolbarMyCourse(
 }
 
 @Composable
-fun ModuleItem(title: String) {
+fun MyModuleItem(module: Module) {
     Row(
         Modifier
             .fillMaxWidth()
@@ -801,7 +793,7 @@ fun ModuleItem(title: String) {
     ) {
         Column {
             Text(
-                text = title,
+                text = module.name,
                 fontFamily = semibold,
                 fontSize = 17.sp,
                 color = TatarTheme.colors.colorWhite,

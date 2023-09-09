@@ -4,9 +4,11 @@ data class Course(
     val id:String,
     val courseName:String,
     val photoLink:String,
+    val lessonsCounter:Int,
     val desc: String,
     val authorName: String,
-    val modules: List<Module>
+    val authorImage: String,
+    val modules: List<Module>,
 ){
-    constructor(): this("", "", "", "", "", listOf())
+    constructor(): this("", "", "",0, "","", "", listOf())
 }

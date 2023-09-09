@@ -65,6 +65,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.media3.ui.PlayerView
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.google.accompanist.systemuicontroller.SystemUiController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.inno.tatarbyhack.App
@@ -90,6 +91,7 @@ class PlayerFragment : Fragment() {
         super.onCreate(savedInstanceState)
     }
 
+    private val args:PlayerFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -128,12 +130,13 @@ class PlayerFragment : Fragment() {
                     }
 
                     PlayerContent(
-                        "https://getsamplefiles.com/download/mp4/sample-3.mp4",
+                        args.url,
+                        args.title,
+                        args.subtitle,
                         //"https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_30mb.mp4",
                         //"https://download.samplelib.com/mp4/sample-30s.mp4",
                         lifecycle,
-                        viewModel,
-                        systemUiController
+                        viewModel
                     ) {
                         findNavController().popBackStack()
                     }
@@ -176,13 +179,13 @@ class PlayerFragment : Fragment() {
 @Composable
 fun PlayerContent(
     videoUrl: String,
+    title: String,
+    subTitle: String,
     lifecycle: Lifecycle.Event,
     viewModel: PlayerViewModel,
-    systemUiController: SystemUiController,
     popBack: () -> Boolean
 ) {
 
-    val localContext = LocalContext.current
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -204,7 +207,6 @@ fun PlayerContent(
         },
             { isLoading ->
                 if (videoLoading.value != isLoading) {
-                    Log.d("121212", "Loading state: $isLoading")
                     videoLoading.value = isLoading
                     if (videoLoading.value) {
                         if (!paused) {
@@ -324,7 +326,7 @@ fun PlayerContent(
                 ) {
                     Text(
                         modifier = Modifier,
-                        text = "IT course, Introduction",
+                        text = title,
                         fontFamily = semibold,
                         fontSize = 22.sp,
                         color = TatarTheme.colors.colorWhite
@@ -332,7 +334,7 @@ fun PlayerContent(
                     Text(
                         modifier = Modifier
                             .padding(top = 5.dp),
-                        text = "Irek Galiev, 26 August 2023",
+                        text = subTitle,
                         fontFamily = medium,
                         fontSize = 13.sp,
                         color = TatarTheme.colors.colorWhite

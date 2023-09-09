@@ -1,7 +1,6 @@
 package com.inno.tatarbyhack.ui.navigation_fragment.compose_elements
 
 import android.net.Uri
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -32,7 +31,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -45,7 +43,7 @@ import com.inno.tatarbyhack.ui.theme.semibold
 
 
 @Composable
-fun CourseItem(item: Course) {
+fun CourseItem(course: Course, moveToCourse: (String) -> Unit) {
     Box(
         modifier = Modifier
             .height(122.dp)
@@ -53,7 +51,7 @@ fun CourseItem(item: Course) {
             .clip(RoundedCornerShape(20.dp))
             .background(TatarTheme.colors.colorWhite)
             .clickable {
-
+                moveToCourse(course.id)
             }
             .padding(start = 20.dp, top = 10.dp, bottom = 10.dp, end = 10.dp)
     ) {
@@ -68,12 +66,13 @@ fun CourseItem(item: Course) {
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = item.courseName,
+                    text = course.courseName,
                     style = TextStyle(
                         fontSize = 17.sp,
                         fontFamily = semibold,
                         color = TatarTheme.colors.labelPrimary
-                    )
+                    ),
+                    maxLines = 2
                 )
                 Box(
                     modifier = Modifier
@@ -81,15 +80,14 @@ fun CourseItem(item: Course) {
                         .height(1.dp),
                 )
                 Text(
-                    modifier = Modifier
-                        .heightIn(min = 51.dp),
-                    text = item.desc,
+                    modifier = Modifier,
+                    text = course.desc,
                     style = TextStyle(
                         fontSize = 12.sp,
                         fontFamily = semibold,
                         color = TatarTheme.colors.colorGray
                     ),
-                    maxLines = 3,
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis
 
                 )
@@ -98,7 +96,7 @@ fun CourseItem(item: Course) {
 
                     ) {
                     Text(
-                        text = item.authorName.split(" ")[0] + " " + item.authorName.split(" ")[0].toCharArray()[0] + ".",
+                        text = course.authorName.split(" ")[0] + " " + course.authorName.split(" ")[0].toCharArray()[0] + ".",
                         style = TextStyle(
                             fontSize = 11.sp,
                             fontFamily = semibold,
@@ -113,7 +111,7 @@ fun CourseItem(item: Course) {
                             .background(Color(0x334F0E77))
                     )
                     Text(
-                        text = "12 дәрес",
+                        text = "${course.lessonsCounter} дәрес",
                         style = TextStyle(
                             fontSize = 11.sp,
                             fontFamily = semibold,
@@ -127,11 +125,13 @@ fun CourseItem(item: Course) {
                     .fillMaxSize()
             ) {
                 Image(
-                    painter = rememberAsyncImagePainter(item.photoLink),
+                    painter = rememberAsyncImagePainter(course.photoLink),
                     contentDescription = null,
                     modifier = Modifier
+                        .clip(RoundedCornerShape(20.dp))
                         .size(50.dp)
                         .align(Alignment.TopEnd),
+                    contentScale = ContentScale.Crop
                 )
 
                 Image(
@@ -147,7 +147,7 @@ fun CourseItem(item: Course) {
 }
 
 @Composable
-fun SmallCourseItem(course: Course) {
+fun SmallCourseItem(course: Course, moveToCourse: (String) -> Unit) {
     Box(
         modifier = Modifier
             .height(72.dp)
@@ -155,7 +155,7 @@ fun SmallCourseItem(course: Course) {
             .clip(RoundedCornerShape(14.dp))
             .background(TatarTheme.colors.colorWhite)
             .clickable {
-
+                moveToCourse(course.id)
             }
             .padding(horizontal = 10.dp, vertical = 10.dp)
     ) {
@@ -227,7 +227,7 @@ fun SmallCourseItem(course: Course) {
 
 
 @Composable
-fun SearchCourseItem(course: Course) {
+fun SearchCourseItem(course: Course, moveToCourse: (String) -> Unit) {
     Card(
         elevation = CardDefaults.cardElevation(
             defaultElevation = 6.dp
@@ -239,7 +239,7 @@ fun SearchCourseItem(course: Course) {
                 .clip(RoundedCornerShape(14.dp))
                 .background(Color.White)
                 .clickable {
-
+                    moveToCourse(course.id)
                 }
                 .padding(horizontal = 10.dp, vertical = 10.dp)
         ) {
