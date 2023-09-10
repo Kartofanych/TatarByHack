@@ -1,23 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/navigation_home">
+    app:startDestination="@+id/navigation_main">
 
     <fragment
-        android:id="@+id/navigation_home"
-        android:name="com.inno.tatarbyhack.ui.navigation_fragment.home.HomeFragment"
+        android:id="@+id/navigation_main"
+        android:name="com.inno.tatarbyhack.ui.navigation_fragment.courses.CoursesFragment"
         android:label="@string/title_home" />
 
     <fragment
-        android:id="@+id/navigation_dashboard"
-        android:name="com.inno.tatarbyhack.ui.navigation_fragment.second.SecondFragment"
+        android:id="@+id/navigation_vebinar"
+        android:name="com.inno.tatarbyhack.ui.navigation_fragment.vebinar.VebinarFragment"
         android:label="@string/title_dashboard" />
 
     <fragment
-        android:id="@+id/navigation_notifications"
-        android:name="com.inno.tatarbyhack.ui.navigation_fragment.second.SecondFragment"
-        android:label="@string/title_notifications"
-        tools:layout="@layout/fragment_notifications" />
+        android:id="@+id/navigation_add_course"
+        android:name="com.inno.tatarbyhack.ui.navigation_fragment.constructor.ConstructorFragment"
+        android:label="@string/title_notifications" />
+
+    <fragment
+        android:id="@+id/navigation_bish"
+        android:name="com.inno.tatarbyhack.ui.navigation_fragment.homework.HomeworkFragment"
+        android:label="@string/title_notifications" />
+
+    <fragment
+        android:id="@+id/navigation_account"
+        android:name="com.inno.tatarbyhack.ui.navigation_fragment.account.AccountFragment"
+        android:label="@string/title_notifications" />
+
 </navigation>

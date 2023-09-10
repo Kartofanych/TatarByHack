@@ -1,6 +1,8 @@
 plugins {
+    id ("kotlin-kapt")
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id ("androidx.navigation.safeargs")
 }
 
 android {
@@ -30,18 +32,18 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
     buildFeatures {
         viewBinding = true
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.3"
+        kotlinCompilerExtensionVersion = "1.4.5"
     }
     packaging {
         resources {
@@ -52,7 +54,7 @@ android {
 
 dependencies {
 
-    implementation("androidx.core:core-ktx:1.9.0")
+    implementation("androidx.core:core-ktx:1.8.20")
     implementation ("androidx.appcompat:appcompat:1.6.1")
     implementation ("com.google.android.material:material:1.9.0")
     implementation ("androidx.navigation:navigation-fragment-ktx:2.6.0")
@@ -76,8 +78,36 @@ dependencies {
 
     implementation ("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
     // Lifecycle components
     implementation ("androidx.lifecycle:lifecycle-extensions:2.2.0")
     implementation ("androidx.lifecycle:lifecycle-common-java8:2.6.1")
     implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
+    //bottom sheet
+    implementation ("androidx.compose.ui:ui:1.4.0-beta02")
+    implementation ("androidx.compose.material:material:1.4.0-beta02")
+
+    //exo player
+    implementation ("androidx.media3:media3-exoplayer:1.1.0")
+    implementation ("androidx.media3:media3-ui:1.1.0")
+    implementation ("androidx.media3:media3-common:1.1.0")
+
+    implementation ("com.google.accompanist:accompanist-systemuicontroller:0.30.1")
+
+    implementation("io.coil-kt:coil-compose:2.2.0")
+
+
+    //Room
+    implementation ("androidx.room:room-runtime:2.5.2")
+    kapt ("androidx.room:room-compiler:2.5.2")
+    implementation ("androidx.room:room-ktx:2.5.2")
+    androidTestImplementation ("androidx.room:room-testing:2.5.2")
+
+    //gson
+    implementation("com.google.code.gson:gson:2.10.1")
+
+    //retrofit service
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.1")
 }

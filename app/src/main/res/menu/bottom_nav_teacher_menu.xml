@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_main"
+        android:icon="@drawable/ic_nav_main"
+        android:title="Дәресләр" />
+
+    <item
+        android:id="@+id/navigation_vebinar"
+        android:icon="@drawable/ic_nav_vebinar"
+        android:title="Вебинар" />
+
+    <item
+        android:id="@+id/navigation_add_course"
+        android:icon="@drawable/ic_nav_add"
+        android:title="Өстәү" />
+
+    <item
+        android:id="@+id/navigation_bish"
+        android:icon="@drawable/ic_nav_bish"
+        android:title="Биш++" />
+
+    <item
+        android:id="@+id/navigation_account"
+        android:icon="@drawable/ic_nav_account"
+        android:title="Керү" />
+
+</menu>
