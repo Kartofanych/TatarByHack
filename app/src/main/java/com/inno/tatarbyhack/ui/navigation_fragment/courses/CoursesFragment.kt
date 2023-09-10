@@ -2,7 +2,7 @@ package com.inno.tatarbyhack.ui.navigation_fragment.courses
 
 import android.app.Activity
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -54,6 +54,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -78,6 +79,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.inno.tatarbyhack.App
 import com.inno.tatarbyhack.R
@@ -108,7 +110,6 @@ class CoursesFragment : Fragment() {
                         CoursesViewModel(App.appModule.coursesRepository)
                     }
                 )
-                viewModel.start()
                 CoursesPage(
                     viewModel,
                     this
@@ -146,7 +147,6 @@ fun CoursesPage(viewModel: CoursesViewModel, composeView: ComposeView, moveToCou
 
     val scope = rememberCoroutineScope()
 
-    val searchList = rememberSaveable { mutableStateOf(listOf<Course>()) }
 
     val recommendedCoursesTitles = listOf("Телләрне өйрәнү", "IT", "Табигый фәннәр")
     val currRecommendedCourse = rememberSaveable { mutableStateOf(0) }
@@ -157,6 +157,8 @@ fun CoursesPage(viewModel: CoursesViewModel, composeView: ComposeView, moveToCou
             0xFF7C52C6
         )
     )
+
+    val searchList = viewModel.searchCourses.collectAsState()
 
     WindowCompat.getInsetsController(window, composeView).isAppearanceLightStatusBars =
         searchState.value
@@ -210,7 +212,7 @@ fun CoursesPage(viewModel: CoursesViewModel, composeView: ComposeView, moveToCou
                     Toolbar(title = "Дәресләр")
                 }
 
-                SearchField(searchState, viewModel, searchList)
+                SearchField(searchState, viewModel)
 
 
                 Box(modifier = Modifier.fillMaxSize()) {
@@ -299,7 +301,7 @@ fun TopPart(viewModel: CoursesViewModel, moveToCourse: (String) -> Unit) {
 }
 
 @Composable
-fun SearchItems(searchList: MutableState<List<Course>>, moveToCourse: (String) -> Unit) {
+fun SearchItems(searchList: State<List<Course>>, moveToCourse: (String) -> Unit) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -408,8 +410,7 @@ fun Toolbar(title: String = "Дәресләр") {
 @Composable
 fun SearchField(
     searchState: MutableState<Boolean>,
-    viewModel: CoursesViewModel,
-    searchList: MutableState<List<Course>>
+    viewModel: CoursesViewModel
 ) {
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
@@ -465,7 +466,6 @@ fun SearchField(
                     value = text,
                     onValueChange = {
                         text = it
-                        searchList.value = listOf()
                         viewModel.findWithPrefix(text)
                     },
                     maxLines = 1,

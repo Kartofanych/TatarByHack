@@ -1,5 +1,6 @@
 package com.inno.tatarbyhack.ui.lesson
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.inno.tatarbyhack.domain.models.Course
@@ -17,6 +18,12 @@ class LessonViewModel(
     private val courseFlow = MutableStateFlow(Course())
     val myCourse = courseFlow.asStateFlow()
 
+
+
+    private val matchingFlow = MutableStateFlow("")
+    val matching = matchingFlow.asStateFlow()
+
+
     init {
         getCourse()
     }
@@ -26,4 +33,13 @@ class LessonViewModel(
             courseFlow.emit(coursesRepository.getCourse(id))
         }
     }
+
+    fun getMatching(userAnswer:String, rightAnswer:String){
+        matchingFlow.value = "-1f"
+        viewModelScope.launch(Dispatchers.IO) {
+            matchingFlow.emit(coursesRepository.getMatching(userAnswer, rightAnswer))
+            Log.d("121212",matching.value.toString() )
+        }
+    }
+
 }

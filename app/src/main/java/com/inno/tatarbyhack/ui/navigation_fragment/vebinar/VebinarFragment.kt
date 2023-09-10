@@ -129,7 +129,8 @@ fun VebinarPage(viewModel: VebinarsViewModel, watchVebinar: (String, String, Str
             Modifier
                 .fillMaxSize()
                 .padding(top = 24.dp)
-                .padding(bottom = 100.dp),
+                //.padding(bottom = 100.dp)
+            ,
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
@@ -145,7 +146,6 @@ fun VebinarPage(viewModel: VebinarsViewModel, watchVebinar: (String, String, Str
 
 @Composable
 fun FutureVebinars(futureVebinars: State<List<Vebinar>>) {
-    val items = arrayOf(1, 2, 3, 4, 5)
 
     Column(
         Modifier
@@ -165,6 +165,7 @@ fun FutureVebinars(futureVebinars: State<List<Vebinar>>) {
         LazyRow(
             Modifier
                 .padding(top = 20.dp)
+                .height(274.dp)
                 .fillMaxWidth()
         ) {
             item {
@@ -314,6 +315,7 @@ fun PreviousVebinars(watchVebinar: (String, String, String) -> Unit, pastVebinar
     Column(
         Modifier
             .padding(top = 30.dp)
+            .height(250.dp)
     ) {
 
         Text(

@@ -442,7 +442,7 @@ fun InformationPart(course: Course) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             AsyncImage(
-                course.photoLink,
+                R.drawable.ic_ex_user,
                 contentDescription = null,
                 modifier = Modifier
                     .padding(end = 10.dp)

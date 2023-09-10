@@ -35,6 +35,7 @@ class VebinarsRepositoryImpl(
             dao.addList(result.map { it.toVebinarEntity() })
         } catch (exception: Exception) {
             Log.d("121212", exception.toString())
+            //getRemoteFutureVebinars()
         }
         //add flag
     }

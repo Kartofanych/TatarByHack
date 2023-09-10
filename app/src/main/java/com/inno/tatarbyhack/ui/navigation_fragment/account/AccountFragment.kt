@@ -26,6 +26,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,17 +36,22 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import com.inno.tatarbyhack.App
 import com.inno.tatarbyhack.R
+import com.inno.tatarbyhack.domain.models.User
 import com.inno.tatarbyhack.ui.theme.TatarByHackTheme
 import com.inno.tatarbyhack.ui.theme.TatarTheme
 import com.inno.tatarbyhack.ui.theme.bold
 import com.inno.tatarbyhack.ui.theme.medium
 import com.inno.tatarbyhack.ui.theme.semibold
+import com.inno.tatarbyhack.utils.viewModelFactory
 
 class AccountFragment : Fragment() {
 
@@ -55,7 +62,15 @@ class AccountFragment : Fragment() {
     ): View = ComposeView(requireContext()).apply {
         setContent {
             TatarByHackTheme {
-                // A surface container using the 'background' color from the theme
+                val viewModel = viewModel<AccountViewModel>(
+                    factory = viewModelFactory {
+                        AccountViewModel(
+                            App.appModule.loginRepository
+                        )
+                    }
+                )
+                viewModel.getUserInfo()
+                val user = viewModel.user.collectAsState()
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -66,7 +81,7 @@ class AccountFragment : Fragment() {
                         true
 
                     //if in account
-                    AccountPage()
+                    AccountPage(user)
 
                 }
             }
@@ -76,7 +91,7 @@ class AccountFragment : Fragment() {
 }
 
 @Composable
-fun AccountPage() {
+fun AccountPage(user: State<User>) {
 
     val scrollState = rememberScrollState()
     Box(
@@ -99,7 +114,7 @@ fun AccountPage() {
         ) {
             ToolbarProfile()
 
-            ProfileInformation()
+            ProfileInformation(user)
 
             TableInfo()
 
@@ -253,7 +268,7 @@ fun TableInfo() {
                     .height(50.dp)
             ) {
                 Text(
-                    text = "5.1",
+                    text = "4.5",
                     fontFamily = medium,
                     fontSize = 15.sp,
                     color = TatarTheme.colors.colorBlue,
@@ -273,7 +288,7 @@ fun TableInfo() {
 }
 
 @Composable
-fun ProfileInformation() {
+fun ProfileInformation(user: State<User>) {
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -281,9 +296,7 @@ fun ProfileInformation() {
             .padding(top = 25.dp, bottom = 35.dp),
     ) {
         AsyncImage(
-            model = "".ifEmpty {
-                R.drawable.ic_ex_user
-            },
+            model = user.value.photoUrl,
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier
@@ -297,12 +310,13 @@ fun ProfileInformation() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Галиев Ирек",
+                text = user.value.name,
                 fontFamily = bold,
                 fontSize = 27.sp,
                 color = TatarTheme.colors.colorBlue,
                 modifier = Modifier
-                    .padding(top = 15.dp)
+                    .padding(top = 15.dp),
+                textAlign = TextAlign.Center
             )
 
             Text(

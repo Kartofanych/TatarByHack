@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -128,10 +130,9 @@ fun CourseItem(course: Course, moveToCourse: (String) -> Unit) {
                     painter = rememberAsyncImagePainter(course.photoLink),
                     contentDescription = null,
                     modifier = Modifier
-                        .clip(RoundedCornerShape(20.dp))
                         .size(50.dp)
                         .align(Alignment.TopEnd),
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.Inside
                 )
 
                 Image(
@@ -175,10 +176,11 @@ fun SmallCourseItem(course: Course, moveToCourse: (String) -> Unit) {
                             .padding(bottom = 4.dp),
                         text = course.courseName,
                         style = TextStyle(
-                            fontSize = 14.sp,
+                            fontSize = 13.sp,
                             fontFamily = semibold,
                             color = TatarTheme.colors.labelPrimary
                         ),
+                        maxLines = 2,
 
                         )
                     Spacer(
@@ -191,17 +193,17 @@ fun SmallCourseItem(course: Course, moveToCourse: (String) -> Unit) {
                         )
                 }
 
+//                Text(
+//                    text = course.authorName.split(" ")[0] + " " + course.authorName.split(" ")[0].toCharArray()[0] + ".",
+//                    style = TextStyle(
+//                        fontSize = 11.sp,
+//                        fontFamily = medium,
+//                        color = Color(0xFF0E0025)
+//                    ),
+//                    maxLines = 1
+//                )
                 Text(
-                    text = course.authorName.split(" ")[0] + " " + course.authorName.split(" ")[0].toCharArray()[0] + ".",
-                    style = TextStyle(
-                        fontSize = 11.sp,
-                        fontFamily = medium,
-                        color = Color(0xFF0E0025)
-                    ),
-                    maxLines = 1
-                )
-                Text(
-                    text = "12 дәрес",
+                    text = "${course.lessonsCounter} дәрес",
                     style = TextStyle(
                         fontSize = 11.sp,
                         fontFamily = semibold,
@@ -243,14 +245,13 @@ fun SearchCourseItem(course: Course, moveToCourse: (String) -> Unit) {
                 }
                 .padding(horizontal = 10.dp, vertical = 10.dp)
         ) {
-            Row(
+            BoxWithConstraints(
                 modifier = Modifier
                     .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(
-                    modifier = Modifier,
+                    modifier = Modifier
+                        .width(maxWidth-80.dp),
                     verticalArrangement = Arrangement.SpaceEvenly
                 ) {
                     Box {
@@ -259,7 +260,7 @@ fun SearchCourseItem(course: Course, moveToCourse: (String) -> Unit) {
                                 .padding(bottom = 4.dp),
                             text = course.courseName,
                             style = TextStyle(
-                                fontSize = 15.sp,
+                                fontSize = 14.sp,
                                 fontFamily = semibold,
                                 color = TatarTheme.colors.labelPrimary
                             ),
@@ -287,7 +288,7 @@ fun SearchCourseItem(course: Course, moveToCourse: (String) -> Unit) {
 
                     )
                     Text(
-                        text = "12 дәрес",
+                        text = "${course.lessonsCounter} дәрес",
                         style = TextStyle(
                             fontSize = 11.sp,
                             fontFamily = semibold,
@@ -299,7 +300,9 @@ fun SearchCourseItem(course: Course, moveToCourse: (String) -> Unit) {
                     painter = rememberAsyncImagePainter(course.photoLink),
                     contentDescription = null,
                     modifier = Modifier
-                        .size(50.dp)
+                        .align(Alignment.CenterEnd)
+                        .size(50.dp),
+                    contentScale = ContentScale.Inside
                 )
             }
         }

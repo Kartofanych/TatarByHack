@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -32,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,6 +48,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -54,6 +57,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.inno.tatarbyhack.App
 import com.inno.tatarbyhack.R
 import com.inno.tatarbyhack.ui.theme.TatarByHackTheme
 import com.inno.tatarbyhack.ui.theme.TatarTheme
@@ -79,7 +83,7 @@ class LoginFragment : Fragment() {
                 ) {
                     val viewModel = viewModel<LoginViewModel>(
                         factory = viewModelFactory {
-                            LoginViewModel()
+                            LoginViewModel(App.appModule.loginRepository)
                         }
                     )
 
@@ -128,13 +132,13 @@ fun LoginPage(viewModel: LoginViewModel, start: () -> Unit) {
                 contentDescription = null,
             )
 
-            BottomLoginPart(start)
+            BottomLoginPart(start, viewModel)
         }
     }
 }
 
 @Composable
-fun BottomLoginPart(start: () -> Unit) {
+fun BottomLoginPart(start: () -> Unit, viewModel: LoginViewModel) {
     Box(
         Modifier.fillMaxWidth()
     ) {
@@ -159,7 +163,7 @@ fun BottomLoginPart(start: () -> Unit) {
                 modifier = Modifier
                     .align(Alignment.Center),
             ) {
-                LoginPart(start)
+                LoginPart(start, viewModel)
             }
 
         }
@@ -212,142 +216,155 @@ fun BottomLoginPart(start: () -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginPart(start: () -> Unit) {
+fun LoginPart(start: () -> Unit, viewModel: LoginViewModel) {
 
     var textMail by rememberSaveable { mutableStateOf("") }
     var textPassword by rememberSaveable { mutableStateOf("") }
+
+    val state = viewModel.loginState.collectAsState()
 
 
     Column(
         Modifier.padding(horizontal = 40.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp)
-                .clip(RoundedCornerShape(14.dp))
-                .background(TatarTheme.colors.backElevated)
-                .padding(horizontal = 10.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_nav_account),
-                contentDescription = null,
-                tint = TatarTheme.colors.colorWhite,
+        if (state.value == 0) {
+            Row(
                 modifier = Modifier
-                    .size(25.dp)
-            )
-            TextField(
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(TatarTheme.colors.backElevated)
+                    .padding(horizontal = 10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_nav_account),
+                    contentDescription = null,
+                    tint = TatarTheme.colors.colorWhite,
+                    modifier = Modifier
+                        .size(25.dp)
+                )
+                TextField(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    value = textMail,
+                    onValueChange = {
+                        textMail = it
+                    },
+                    maxLines = 1,
+                    textStyle = TextStyle(
+                        fontFamily = semibold,
+                        fontSize = 14.sp,
+                        color = TatarTheme.colors.colorWhite
+                    ),
+                    interactionSource = remember { MutableInteractionSource() },
+                    placeholder = {
+                        Text(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            text = "логин",
+                            style = TextStyle(
+                                fontFamily = semibold,
+                                fontSize = 13.sp,
+                                color = TatarTheme.colors.colorWhite
+                            ),
+                            textAlign = TextAlign.Start
+                        )
+                    },
+                    colors = TextFieldDefaults.textFieldColors(
+                        containerColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                    ),
+                )
+            }
+            Spacer(modifier = Modifier.height(20.dp))
+            Row(
                 modifier = Modifier
-                    .fillMaxWidth(),
-                value = textMail,
-                onValueChange = {
-                    textMail = it
-                },
-                maxLines = 1,
-                textStyle = TextStyle(
-                    fontFamily = semibold,
-                    fontSize = 14.sp,
-                    color = TatarTheme.colors.colorWhite
-                ),
-                interactionSource = remember { MutableInteractionSource() },
-                placeholder = {
-                    Text(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        text = "логин",
-                        style = TextStyle(
-                            fontFamily = semibold,
-                            fontSize = 13.sp,
-                            color = TatarTheme.colors.colorWhite
-                        ),
-                        textAlign = TextAlign.Start
-                    )
-                },
-                colors = TextFieldDefaults.textFieldColors(
-                    containerColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                ),
-            )
-        }
-        Spacer(modifier = Modifier.height(20.dp))
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp)
-                .clip(RoundedCornerShape(14.dp))
-                .background(TatarTheme.colors.backElevated)
-                .padding(horizontal = 10.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_password),
-                contentDescription = null,
-                tint = TatarTheme.colors.colorWhite,
-                modifier = Modifier
-                    .size(25.dp)
-            )
-            TextField(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                value = textPassword,
-                onValueChange = {
-                    textPassword = it
-                },
-                maxLines = 1,
-                textStyle = TextStyle(
-                    fontFamily = semibold,
-                    fontSize = 14.sp,
-                    color = TatarTheme.colors.colorWhite
-                ),
-                interactionSource = remember { MutableInteractionSource() },
-                placeholder = {
-                    Text(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        text = "пароль",
-                        style = TextStyle(
-                            fontFamily = semibold,
-                            fontSize = 13.sp,
-                            color = TatarTheme.colors.colorWhite
-                        ),
-                        textAlign = TextAlign.Start
-                    )
-                },
-                colors = TextFieldDefaults.textFieldColors(
-                    containerColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                ),
-            )
-        }
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(TatarTheme.colors.backElevated)
+                    .padding(horizontal = 10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_password),
+                    contentDescription = null,
+                    tint = TatarTheme.colors.colorWhite,
+                    modifier = Modifier
+                        .size(25.dp)
+                )
+                TextField(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    value = textPassword,
+                    onValueChange = {
+                        textPassword = it
+                    },
+                    visualTransformation = PasswordVisualTransformation(),
+                    maxLines = 1,
+                    textStyle = TextStyle(
+                        fontFamily = semibold,
+                        fontSize = 14.sp,
+                        color = TatarTheme.colors.colorWhite
+                    ),
+                    interactionSource = remember { MutableInteractionSource() },
+                    placeholder = {
+                        Text(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            text = "пароль",
+                            style = TextStyle(
+                                fontFamily = semibold,
+                                fontSize = 13.sp,
+                                color = TatarTheme.colors.colorWhite
+                            ),
+                            textAlign = TextAlign.Start
+                        )
+                    },
+                    colors = TextFieldDefaults.textFieldColors(
+                        containerColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                    ),
+                )
+            }
 
-        Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
-        Box(modifier = Modifier
-            .height(35.dp)
-            .width(100.dp)
-            .clip(RoundedCornerShape(10.dp))
-            .background(TatarTheme.colors.colorOrange)
-            .clickable {
-                //reg
-                start()
-            }) {
-            Text(
-                modifier = Modifier
-                    .align(Alignment.Center),
-                text = "Керү",
-                style = TextStyle(
-                    fontFamily = bold,
-                    fontSize = 13.sp,
-                    color = TatarTheme.colors.colorWhite,
-                    textAlign = TextAlign.Center
-                ),
+            Box(modifier = Modifier
+                .height(35.dp)
+                .width(100.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .background(TatarTheme.colors.colorOrange)
+                .clickable {
+                    //reg
+                    viewModel.login(textMail, textPassword)
+                }) {
+                Text(
+                    modifier = Modifier
+                        .align(Alignment.Center),
+                    text = "Керү",
+                    style = TextStyle(
+                        fontFamily = bold,
+                        fontSize = 13.sp,
+                        color = TatarTheme.colors.colorWhite,
+                        textAlign = TextAlign.Center
+                    ),
+                )
+            }
+        } else if (state.value == 1) {
+            CircularProgressIndicator(
+                color = TatarTheme.colors.colorWhite,
+                strokeWidth = 4.dp,
+                modifier = Modifier.size(50.dp)
             )
+        } else {
+            start()
         }
 
     }

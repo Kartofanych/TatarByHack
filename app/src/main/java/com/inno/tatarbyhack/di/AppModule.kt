@@ -10,9 +10,11 @@ import com.inno.tatarbyhack.data.localSource.vebinarSource.VebinarsDao
 import com.inno.tatarbyhack.data.localSource.vebinarSource.VebinarsDatabase
 import com.inno.tatarbyhack.data.remoteSource.api.RetrofitService
 import com.inno.tatarbyhack.data.repositories.CoursesRepositoryImpl
+import com.inno.tatarbyhack.data.repositories.LoginRepositoryImpl
 import com.inno.tatarbyhack.data.repositories.MyCoursesRepositoryImpl
 import com.inno.tatarbyhack.data.repositories.VebinarsRepositoryImpl
 import com.inno.tatarbyhack.domain.repository.CoursesRepository
+import com.inno.tatarbyhack.domain.repository.LoginRepository
 import com.inno.tatarbyhack.domain.repository.MyCoursesRepository
 import com.inno.tatarbyhack.domain.repository.VebinarsRepository
 import okhttp3.OkHttpClient
@@ -27,6 +29,7 @@ interface AppModule {
     val coursesRepository: CoursesRepository
     val myCoursesRepository: MyCoursesRepository
     val vebinarsRepository: VebinarsRepository
+    val loginRepository: LoginRepository
     val myCoursesRoom: MyCoursesDatabase
     val myCoursesDao: MyCoursesDao
     val popularRoom: PopularCoursesDatabase
@@ -76,7 +79,7 @@ class AppModuleImpl(
         OkHttpClient.Builder().connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
-            .retryOnConnectionFailure(false)
+            .retryOnConnectionFailure(true)
             .addInterceptor(interceptor).build()
     private val retrofit: Retrofit
         get() = Retrofit.Builder()
@@ -90,6 +93,8 @@ class AppModuleImpl(
         get() = MyCoursesRepositoryImpl(myCoursesDao)
     override val vebinarsRepository: VebinarsRepository
         get() = VebinarsRepositoryImpl(service, vebinarsDao)
+    override val loginRepository: LoginRepository
+        get() = LoginRepositoryImpl(service)
 
 
 }

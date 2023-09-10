@@ -44,10 +44,17 @@ fun PopularCoursesEntity.toCourse(): Course {
         authorName = authorName.name,
         authorImage = authorName.photoUrl,
         modules = modules.map { moduleDto ->
-            Module(moduleDto.id, moduleDto.name, moduleDto.lessons.map {
-                Lesson(it.id, it.name, it.videoLink, it.text, it.tasks.map {
-                    Task("hah", "")
-                }, false)
+            Module(moduleDto.id, moduleDto.name, moduleDto.lessons.map { lessonDto ->
+                Lesson(
+                    lessonDto.id,
+                    lessonDto.name,
+                    lessonDto.videoLink,
+                    lessonDto.text,
+                    lessonDto.tasks?.map {
+                        Task(it.text, it.answer)
+                    }?: listOf(),
+                    false
+                )
             })
         }
     )

@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -68,6 +70,7 @@ import com.inno.tatarbyhack.domain.models.Lesson
 import com.inno.tatarbyhack.domain.models.Task
 import com.inno.tatarbyhack.ui.theme.TatarByHackTheme
 import com.inno.tatarbyhack.ui.theme.TatarTheme
+import com.inno.tatarbyhack.ui.theme.bold
 import com.inno.tatarbyhack.ui.theme.medium
 import com.inno.tatarbyhack.ui.theme.semibold
 import com.inno.tatarbyhack.utils.viewModelFactory
@@ -114,7 +117,8 @@ class LessonFragment : Fragment() {
                         },
                         back = {
                             findNavController().popBackStack()
-                        }
+                        },
+                        viewModel = viewModel
                     )
 
                 }
@@ -131,6 +135,7 @@ fun LessonContent(
     course: Course,
     back: () -> Unit,
     openPlayer: () -> Unit,
+    viewModel: LessonViewModel
 ) {
     val lesson =
         course.modules.firstOrNull { it.id == args.moduleId }?.lessons?.firstOrNull { it.id == args.lessonId }
@@ -153,23 +158,33 @@ fun LessonContent(
         if (!solving) {
             ReadingPart(args, course, back, openPlayer, lesson) { solving = true }
         } else {
-            SolvingPart(lesson.tasks, back)
+            SolvingPart(lesson.tasks, back, viewModel)
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SolvingPart(tasks: List<Task>, back: () -> Unit) {
+fun SolvingPart(tasks: List<Task>, back: () -> Unit, viewModel: LessonViewModel) {
     var taskIndex by rememberSaveable { mutableStateOf(0) }
     var taskAccuracy by rememberSaveable { mutableStateOf(0) }
     var textField by remember { mutableStateOf("") }
+    var curState by remember { mutableStateOf(0) }
+    val buttonColor by animateColorAsState(
+        targetValue = if (curState == 0) Color(0xFFF49A11) else Color(
+            0xFF9D80D7
+        )
+    )
+
+    val matching = viewModel.matching.collectAsState()
 
     Column(
         modifier = Modifier
             .padding(top = 28.dp)
+            .padding(bottom = 10.dp)
             .fillMaxSize(),
-        verticalArrangement = Arrangement.SpaceBetween
+        verticalArrangement = Arrangement.SpaceBetween,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
         ToolbarSolving()
@@ -178,49 +193,59 @@ fun SolvingPart(tasks: List<Task>, back: () -> Unit) {
             modifier = Modifier
                 .padding(horizontal = 40.dp)
                 .fillMaxWidth(),
-            shape = RoundedCornerShape(15.dp)
+            shape = RoundedCornerShape(15.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = Color(0xFF9D80D7)
+            )
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 10.dp)
+                    .padding(horizontal = 20.dp)
                     .padding(top = 15.dp, bottom = 30.dp)
             ) {
 
                 Text(
-                    text = "Сорау  $taskIndex / ${tasks.size}",
+                    text = "Сорау  ${taskIndex + 1} / ${tasks.size}",
                     style = TextStyle(
-                        fontSize = 22.sp,
-                        fontFamily = medium,
-                        color = TatarTheme.colors.labelPrimary
+                        fontSize = 20.sp,
+                        fontFamily = bold,
+                        color = TatarTheme.colors.colorWhite
                     )
                 )
-                Text(
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .heightIn(min = 100.dp),
-                    text = tasks[taskIndex].text,
-                    style = TextStyle(
-                        fontSize = 26.sp,
-                        fontFamily = semibold,
-                        color = TatarTheme.colors.colorWhite
-                    ),
-                    textAlign = TextAlign.Center
-                )
+                        .padding(vertical = 15.dp)
+                        .heightIn(min = 200.dp)
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .align(Alignment.Center),
+                        text = if (curState == 0) tasks[taskIndex].text else tasks[taskIndex].answer,
+                        style = TextStyle(
+                            fontSize = if (curState == 0) 26.sp else 20.sp,
+                            fontFamily = semibold,
+                            color = TatarTheme.colors.colorWhite,
+                            textAlign = TextAlign.Center
+                        ),
+                    )
+                }
 
                 TextField(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .heightIn(min = 60.dp)
+                        .heightIn(min = 120.dp)
                         .background(Color.Transparent)
-                        .border(1.dp, color = Color(0xFF4F0E77), RoundedCornerShape(10.dp)),
+                        .border(1.dp, color = Color(0xFF4F0E77), RoundedCornerShape(14.dp)),
                     value = textField,
                     onValueChange = {
                         textField = it
                     },
                     textStyle = TextStyle(
                         fontFamily = semibold,
-                        fontSize = 14.sp,
+                        fontSize = 18.sp,
+                        color = TatarTheme.colors.colorWhite
                     ),
                     placeholder = {
                         Text(
@@ -228,8 +253,8 @@ fun SolvingPart(tasks: List<Task>, back: () -> Unit) {
                             text = "Жәвап...",
                             style = TextStyle(
                                 fontFamily = medium,
-                                fontSize = 15.sp,
-                                color = TatarTheme.colors.colorGray
+                                fontSize = 18.sp,
+                                color = TatarTheme.colors.colorWhite
                             ),
                             textAlign = TextAlign.Start
                         )
@@ -240,7 +265,28 @@ fun SolvingPart(tasks: List<Task>, back: () -> Unit) {
                         disabledIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
                     ),
+                    shape = RoundedCornerShape(14.dp)
                 )
+
+                if (curState > 0) {
+                    Text(
+                        modifier = Modifier
+                            .padding(top = 5.dp)
+                            .fillMaxWidth(),
+                        text = if (matching.value == "-1f") {
+                            "йөкләнеш..."
+                        } else {
+                            curState++
+                            "${matching.value}% туры килү"
+                        },
+                        style = TextStyle(
+                            fontFamily = medium,
+                            fontSize = 18.sp,
+                            color = TatarTheme.colors.colorWhite
+                        ),
+                        textAlign = TextAlign.Start
+                    )
+                }
             }
         }
 
@@ -249,30 +295,47 @@ fun SolvingPart(tasks: List<Task>, back: () -> Unit) {
                 .width(240.dp)
                 .height(60.dp)
                 .clip(RoundedCornerShape(30.dp))
-                .background(Color(0xFFF49A11))
-                .clickable {
-                    if (textField == tasks[taskIndex].answer) {
-                        taskAccuracy++
-                    }
-                    textField = ""
-                    if (taskIndex < tasks.size - 1) {
-                        taskIndex++
+                .background(buttonColor)
+                .clickable(curState != 1) {
+                    if (curState == 0) {
+                        curState++
+                        viewModel.getMatching(textField, tasks[taskIndex].answer)
                     } else {
-                        //report
-                        back()
+                        curState = 0
+
+
+                        textField = ""
+                        if (taskIndex < tasks.size - 1) {
+                            taskIndex++
+                        } else {
+                            //report
+                            back()
+                        }
                     }
                 }
         ) {
             Text(
                 modifier = Modifier
                     .align(Alignment.Center),
-                text = "Киләсе сорау",
+                text = if (curState == 0) "Тикшерү" else "Киләсе сорау",
                 style = TextStyle(
                     fontFamily = semibold,
                     fontSize = 17.sp,
-                    color = TatarTheme.colors.colorGray
+                    color = TatarTheme.colors.colorWhite
                 ),
                 textAlign = TextAlign.Center
+            )
+        }
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
+            Image(
+                modifier = Modifier
+                    .align(Alignment.BottomStart),
+                painter = painterResource(id = R.drawable.ic_courses_bottom_back),
+                contentDescription = null,
             )
         }
 
@@ -428,12 +491,13 @@ fun ReadingPart(
 
                 BoxWithConstraints(
                     modifier = Modifier
-                        .padding(horizontal = 30.dp),
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp)
+                        .padding(bottom = 20.dp),
                 ) {
 
                     Text(
                         modifier = Modifier
-                            .padding(end = 10.dp)
                             .width(maxWidth - 100.dp),
                         text = lesson.name,
                         fontFamily = semibold,
@@ -444,9 +508,9 @@ fun ReadingPart(
                         modifier = Modifier
                             .align(Alignment.CenterEnd)
                             .height(35.dp)
+                            .width(120.dp)
                             .clip(RoundedCornerShape(10.dp))
                             .background(TatarTheme.colors.colorOrange)
-                            .padding(horizontal = 20.dp)
                             .clickable {
 
                             },
@@ -456,7 +520,9 @@ fun ReadingPart(
                         Icon(
                             painter = painterResource(id = R.drawable.ic_nav_vebinar),
                             contentDescription = null,
-                            Modifier.size(23.dp),
+                            Modifier
+                                .padding(end = 8.dp)
+                                .size(23.dp),
                             tint = TatarTheme.colors.colorWhite
                         )
                         Text(
@@ -475,8 +541,7 @@ fun ReadingPart(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 20.dp)
-                        .clip(RoundedCornerShape(20.dp))
-                        .padding(horizontal = 20.dp, vertical = 20.dp),
+                        .clip(RoundedCornerShape(20.dp)),
                     elevation = CardDefaults.cardElevation(
                         defaultElevation = 8.dp
                     ),
@@ -484,30 +549,40 @@ fun ReadingPart(
                         containerColor = Color(0xFFF0F6FE)
                     )
                 ) {
-                    Text(
-                        text = lesson.text,
-                        fontFamily = medium,
-                        color = TatarTheme.colors.colorWhite,
-                        fontSize = 14.sp,
-                    )
+                    Box(
+                        modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 20.dp, vertical = 20.dp)
+                    ) {
+                        Text(
+                            text = lesson.text,
+                            fontFamily = medium,
+                            color = TatarTheme.colors.labelPrimary,
+                            fontSize = 14.sp,
+                        )
+                    }
                 }
 
                 Row(
                     modifier = Modifier
+                        .padding(top = 20.dp, bottom = 50.dp)
                         .height(50.dp)
                         .clip(RoundedCornerShape(10.dp))
-                        .background(TatarTheme.colors.colorOrange)
-                        .padding(horizontal = 20.dp)
                         .clickable {
                             startSolving()
-                        },
+                        }
+                        .background(TatarTheme.colors.colorOrange)
+                        .padding(horizontal = 20.dp),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_play),
                         contentDescription = null,
-                        Modifier.size(30.dp),
+                        Modifier
+                            .size(30.dp)
+                            .padding(5.dp),
                         tint = TatarTheme.colors.colorWhite
                     )
                     Text(
@@ -518,8 +593,6 @@ fun ReadingPart(
                         fontSize = 14.sp,
                     )
                 }
-
-
             }
         }
     }

@@ -14,6 +14,8 @@ interface PopularCoursesDao {
     suspend fun addList(list: List<PopularCoursesEntity>)
     @Query("SELECT * FROM popularCoursesList")
     fun getAllFlow(): Flow<List<PopularCoursesEntity>>
+    @Query("SELECT * FROM popularCoursesList")
+    fun getAll(): List<PopularCoursesEntity>
     @Query("SELECT * FROM popularCoursesList WHERE id=:id")
     fun getCourse(id:String): PopularCoursesEntity
 }

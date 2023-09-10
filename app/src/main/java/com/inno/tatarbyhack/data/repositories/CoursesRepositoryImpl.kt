@@ -7,9 +7,8 @@ import com.inno.tatarbyhack.data.localSource.cousesSource.toPopularCoursesEntity
 import com.inno.tatarbyhack.data.remoteSource.api.RetrofitService
 import com.inno.tatarbyhack.data.remoteSource.entities.toCourse
 import com.inno.tatarbyhack.domain.models.Course
-import com.inno.tatarbyhack.domain.models.Lesson
-import com.inno.tatarbyhack.domain.models.Module
 import com.inno.tatarbyhack.domain.repository.CoursesRepository
+import com.inno.tatarbyhack.utils.SharedPreferencesHelper
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -19,46 +18,59 @@ class CoursesRepositoryImpl(
 ) : CoursesRepository {
 
 
-
     override fun getCourse(id: String): Course {
         return dao.getCourse(id).toCourse()
     }
 
     override suspend fun searchWithPrefix(prefix: String): List<Course> {
-        val result = service.searchCourse(prefix)
-        return result.map { it.toCourse() }
+        try {
+            val result =
+                service.searchCourse("Bearer ${SharedPreferencesHelper.getToken()}", prefix)
+            dao.addList(result.map { it.toPopularCoursesEntity() })
+            return result.map { it.toCourse() }
+        } catch (exception: Exception) {
+        }
+        return listOf()
     }
 
 
-    override suspend fun getPopularCourses(): Flow<List<Course>> = flow {
+    override suspend fun getPopularCoursesFlow(): Flow<List<Course>> = flow {
         dao.getAllFlow().collect { list ->
             emit(list.map { it.toCourse() })
         }
     }
 
-
-    override suspend fun getRecommendedCourses(): Flow<List<Course>> = flow {
-
+    override suspend fun getPopularCourses(): List<Course> {
+        return dao.getAll().map { it.toCourse() }
     }
 
     override suspend fun increaseWatches(id: String) {
         try {
-            service.addViewToCourse(id = id)
+            service.addViewToCourse(
+                "Bearer ${SharedPreferencesHelper.getToken()}",
+                id = id
+            )
         } catch (exception: Exception) {
-
         }
     }
 
-    override suspend fun loadPopularCourses() : List<Course>? {
+    override suspend fun loadPopularCourses(): List<Course>? {
         try {
             val result = service.getPopularCourses()
             dao.addList(result.map { it.toPopularCoursesEntity() })
-            Log.d("121212", result.size.toString())
             return result.map { it.toCourse() }
         } catch (exception: Exception) {
-            Log.d("121212", exception.toString())
+
         }
-        Log.d("121212", "zero")
         return null
+    }
+
+    override suspend fun getMatching(userAnswer: String, rightAnswer: String):String {
+        try {
+            val res = service.matchingAnswer(rightAnswer, userAnswer).matching
+            return res
+        } catch (exception: Exception) {
+        }
+        return "0.59"
     }
 }

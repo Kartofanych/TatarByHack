@@ -21,7 +21,6 @@ class NavigationFragment : Fragment() {
     private lateinit var binding: BottomFragmentBinding
     private val sharedPreferencesHelper = SharedPreferencesHelper
 
-    val viewModel: NavigationViewModel by activityViewModels { ViewModelFactory(App.appModule.coursesRepository) }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

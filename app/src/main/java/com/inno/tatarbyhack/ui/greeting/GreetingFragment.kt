@@ -38,6 +38,7 @@ import com.inno.tatarbyhack.ui.theme.TatarByHackTheme
 import com.inno.tatarbyhack.ui.theme.TatarTheme
 import com.inno.tatarbyhack.ui.theme.bold
 import com.inno.tatarbyhack.ui.theme.medium
+import com.inno.tatarbyhack.utils.SharedPreferencesHelper
 
 class GreetingFragment : Fragment() {
 
@@ -49,17 +50,19 @@ class GreetingFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        // Inflate the layout for this fragment
         return ComposeView(requireContext()).apply {
             setContent {
                 TatarByHackTheme {
-                    // A surface container using the 'background' color from the theme
                     Surface(
                         modifier = Modifier.fillMaxSize(),
                         color = MaterialTheme.colorScheme.background
                     ) {
                         GreetingPage {
-                            val action = GreetingFragmentDirections.actionStart()
+                            val action = if (SharedPreferencesHelper.getToken() == "no_token") {
+                                GreetingFragmentDirections.actionStart()
+                            } else {
+                                GreetingFragmentDirections.actionStartWithoutLogin()
+                            }
                             findNavController().navigate(action)
                         }
                     }
@@ -149,7 +152,7 @@ fun GreetingPage(start: () -> Unit) {
                     text = "Башлыйбыз",
                     fontFamily = bold,
                     fontSize = 20.sp,
-                    )
+                )
             }
 
 

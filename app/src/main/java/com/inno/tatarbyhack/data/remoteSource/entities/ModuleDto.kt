@@ -13,6 +13,6 @@ fun Module.toModuleDto(): ModuleDto {
     return ModuleDto(
         id = id,
         name = name,
-        lessons = lessons.map { LessonDto(it.id, it.videoLink, it.name, "", it.text) }
+        lessons = lessons.map { LessonDto(it.id, it.videoLink, it.name, it.tasks.map { TaskDto(it.text, it.answer) }, it.text) }
     )
 }

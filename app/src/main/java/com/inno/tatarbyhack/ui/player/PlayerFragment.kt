@@ -98,7 +98,6 @@ class PlayerFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
 
-        // Inflate the layout for this fragment
         return ComposeView(requireContext()).apply {
 
             setContent {
@@ -130,7 +129,8 @@ class PlayerFragment : Fragment() {
                     }
 
                     PlayerContent(
-                        args.url,
+                        //args.url,
+                        "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_30mb.mp4",
                         args.title,
                         args.subtitle,
                         //"https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_30mb.mp4",
